@@ -41,7 +41,7 @@ const turnkeyProxyHandler = turnkeyServerClient.expressProxyHandler({
   ],
 });
 
-app.get("/", (req, res) => res.send("Express on Vercel"));
+app.get("/", (req, res) => res.send("Welcome to Turnkey's Demo Embedded Wallet API!"));
 
 app.post("/", turnkeyProxyHandler);
 
@@ -90,4 +90,4 @@ app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-// FORCE VERCEL REDEPLOY
+module.exports = app;
