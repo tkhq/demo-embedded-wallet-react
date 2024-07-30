@@ -157,7 +157,7 @@ export const UserDashboardScreen: React.FC<UserDashboardProps> = ({
     const privateKey =
       "4b48b9be7ec201bf165e90e89f451bf13ac8b569fd86d0c17977d67dc3642b35";
     const publicAddress = "0xE7F48E6dCfBeA43ff5CD1F1570f6543878cCF156";
-    const airdropAmount = "0.001";
+    const airdropAmount = "0.005";
 
     const airdropWallet = new ethers.Wallet(privateKey);
     const connectedAirdropWallet = airdropWallet.connect(InfuraProvider);
@@ -295,7 +295,7 @@ export const UserDashboardScreen: React.FC<UserDashboardProps> = ({
                 <th>Asset</th>
                 <th>Address</th>
                 <th>Amount</th>
-                <th>Value (testnet)</th>
+                <th>Value (USD)</th>
               </tr>
             </thead>
             <tbody>
@@ -394,7 +394,7 @@ export const UserDashboardScreen: React.FC<UserDashboardProps> = ({
             <div className="activity-table-empty">
               <p className="primary-text">You have no activity</p>
               <p className="secondary-text">
-                Once you start sending and receiving Sepolia Ethereum, your
+                Once you start sending and receiving Sepolia ETH, your
                 activity will be shown here.
               </p>
             </div>
