@@ -4,17 +4,20 @@ let db = new sqlite3.Database("./db.sqlite3", (error) => {
   if (error) {
     console.error("Error opening database: " + error.message);
   } else {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
+    db.run(
+      `CREATE TABLE IF NOT EXISTS users (
       email TEXT,
       subOrganizationId TEXT,
       emailVerified INTEGER DEFAULT 0
-    )`, (error) => {
-      if (error) {
-        console.error("Error creating table: " + error.message);
-      }
-    });
+    )`,
+      (error) => {
+        if (error) {
+          console.error("Error creating table: " + error.message);
+        }
+      },
+    );
   }
-})
+});
 
 const addUser = async (email, subOrganizationId, emailVerified) => {
   return new Promise((resolve, reject) => {
@@ -28,7 +31,7 @@ const addUser = async (email, subOrganizationId, emailVerified) => {
       }
     });
   });
-}
+};
 
 const findUserByEmail = async (email) => {
   return new Promise((resolve, reject) => {
@@ -43,14 +46,14 @@ const findUserByEmail = async (email) => {
           resolve(undefined);
         }
       }
-    })
-  })
-}
+    });
+  });
+};
 
 const verifyUserEmail = async (email) => {
   return new Promise((resolve, reject) => {
     const sql = `UPDATE users SET emailVerified = 1 WHERE email = ?`;
-    db.run(sql, [email], function(err) {
+    db.run(sql, [email], function (err) {
       if (err) {
         reject(err);
       } else {
@@ -63,10 +66,10 @@ const verifyUserEmail = async (email) => {
       }
     });
   });
-}
+};
 
 module.exports = {
   addUser,
   findUserByEmail,
-  verifyUserEmail
-}
+  verifyUserEmail,
+};

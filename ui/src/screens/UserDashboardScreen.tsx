@@ -393,8 +393,8 @@ export const UserDashboardScreen: React.FC<UserDashboardProps> = ({
             <div className="activity-table-empty">
               <p className="primary-text">You have no activity</p>
               <p className="secondary-text">
-                Once you start sending and receiving Sepolia ETH, your
-                activity will be shown here.
+                Once you start sending and receiving Sepolia ETH, your activity
+                will be shown here.
               </p>
             </div>
           ) : (

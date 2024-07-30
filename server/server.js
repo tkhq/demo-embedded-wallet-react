@@ -41,7 +41,9 @@ const turnkeyProxyHandler = turnkeyServerClient.expressProxyHandler({
   ],
 });
 
-app.get("/", (req, res) => res.send("Welcome to Turnkey's Demo Embedded Wallet API!"));
+app.get("/", (req, res) =>
+  res.send("Welcome to Turnkey's Demo Embedded Wallet API!"),
+);
 
 app.post("/", turnkeyProxyHandler);
 
@@ -50,7 +52,7 @@ app.post("/add-user", async (req, res) => {
     const addUserResponse = await addUser(
       req.body.email,
       req.body.subOrganizationId,
-      0
+      0,
     );
     res.status(200).send({ user: addUserResponse });
   } catch (error) {
@@ -78,11 +80,9 @@ app.post("/verify-user-email", async (req, res) => {
     const verifyUserResponse = await verifyUserEmail(req.body.email);
     res.status(200).send({ user: verifyUserResponse });
   } catch (error) {
-    res
-      .status(400)
-      .send({
-        error: `Unable to verify user email ${req.body.email}: ${error}`,
-      });
+    res.status(400).send({
+      error: `Unable to verify user email ${req.body.email}: ${error}`,
+    });
   }
 });
 

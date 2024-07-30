@@ -37,7 +37,9 @@ export const ExportWallet: React.FC<ExportWalletProps> = ({
           iframeContainer: document.getElementById(
             TurnkeyExportIframeContainerId,
           ),
-          iframeUrl: process.env.REACT_APP_EXPORT_IFRAME_URL ?? "https://export.turnkey.com",
+          iframeUrl:
+            process.env.REACT_APP_EXPORT_IFRAME_URL ??
+            "https://export.turnkey.com",
         });
         setIframeClient(newExportIframeClient);
       }

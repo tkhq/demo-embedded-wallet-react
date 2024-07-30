@@ -1,26 +1,26 @@
-const { Pool } = require('pg');
-const dotenv = require('dotenv');
+const { Pool } = require("pg");
+const dotenv = require("dotenv");
 
 dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false
-  }
+    rejectUnauthorized: false,
+  },
 });
 
 const connectDB = async () => {
   try {
     const client = await pool.connect();
-    console.log('Connected to PostgreSQL database.');
+    console.log("Connected to PostgreSQL database.");
     await client.query(`CREATE TABLE IF NOT EXISTS users (
       email TEXT PRIMARY KEY,
       subOrganizationId TEXT,
       emailVerified BOOLEAN DEFAULT FALSE
     )`);
   } catch (err) {
-    console.error('Error connecting to PostgreSQL: ' + err.message);
+    console.error("Error connecting to PostgreSQL: " + err.message);
   }
 };
 
@@ -32,7 +32,7 @@ const addUser = async (email, subOrganizationId, emailVerified) => {
   try {
     await pool.query(sql, [email, subOrganizationId, emailVerified]);
   } catch (error) {
-    console.error('Could not insert user: ' + error.message);
+    console.error("Could not insert user: " + error.message);
     throw error;
   }
 };
@@ -43,7 +43,7 @@ const findUserByEmail = async (email) => {
     const res = await pool.query(sql, [email]);
     return res.rows[0];
   } catch (error) {
-    console.error('Error finding user by email: ' + error.message);
+    console.error("Error finding user by email: " + error.message);
     throw error;
   }
 };
@@ -55,11 +55,11 @@ const verifyUserEmail = async (email) => {
     if (res.rowCount > 0) {
       return;
     } else {
-      console.log('No user found with that email to verify.');
-      throw new Error('No user found with that email to verify.');
+      console.log("No user found with that email to verify.");
+      throw new Error("No user found with that email to verify.");
     }
   } catch (error) {
-    console.error('Error verifying user email: ' + error.message);
+    console.error("Error verifying user email: " + error.message);
     throw error;
   }
 };
@@ -67,5 +67,5 @@ const verifyUserEmail = async (email) => {
 module.exports = {
   addUser,
   findUserByEmail,
-  verifyUserEmail
+  verifyUserEmail,
 };

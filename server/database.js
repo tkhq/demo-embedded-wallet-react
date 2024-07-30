@@ -1,8 +1,8 @@
 let database;
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === "production") {
   database = require("./postgres");
-} else if (process.env.NODE_ENV === 'development') {
+} else if (process.env.NODE_ENV === "development") {
   database = require("./sqlite");
 }
 

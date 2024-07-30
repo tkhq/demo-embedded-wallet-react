@@ -24,7 +24,8 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
 }) => {
   const { setActiveModal } = useModal();
   const [amountToSend, setAmountToSend] = useState<string>("0");
-  const [destinationAddress, setDestinationAddress] = useState<string>(tkhqFaucetAddress);
+  const [destinationAddress, setDestinationAddress] =
+    useState<string>(tkhqFaucetAddress);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -66,7 +67,9 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
           <p className="modal-title">Send</p>
           <p className="modal-subtitle">
             Select the asset type, and enter the amount and destination address
-            you'd like to send from your <span>Turnkey Wallet</span>. Need testnet funds? Click “Get Funds” on the homepage. The default destination is Turnkey's Faucet address.
+            you'd like to send from your <span>Turnkey Wallet</span>. Need
+            testnet funds? Click “Get Funds” on the homepage. The default
+            destination is Turnkey's Faucet address.
           </p>
         </div>
 

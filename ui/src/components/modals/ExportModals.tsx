@@ -228,7 +228,9 @@ export const WalletSeedPhraseModal: React.FC<WalletSeedPhraseModalProps> = ({
           iframeContainer: document.getElementById(
             TurnkeyExportIframeContainerId,
           ),
-          iframeUrl: process.env.REACT_APP_EXPORT_IFRAME_URL ?? "https://export.turnkey.com",
+          iframeUrl:
+            process.env.REACT_APP_EXPORT_IFRAME_URL ??
+            "https://export.turnkey.com",
         });
         setIframeClient(newExportIframeClient);
       }
@@ -333,7 +335,9 @@ export const WalletAccountPrivateKeyModal: React.FC<
           iframeContainer: document.getElementById(
             TurnkeyExportIframeContainerId,
           ),
-          iframeUrl: process.env.REACT_APP_EXPORT_IFRAME_URL ?? "https://export.turnkey.com",
+          iframeUrl:
+            process.env.REACT_APP_EXPORT_IFRAME_URL ??
+            "https://export.turnkey.com",
         });
         setIframeClient(newExportIframeClient);
       }

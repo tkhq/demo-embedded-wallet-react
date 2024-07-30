@@ -66,7 +66,9 @@ export const ImportWallet: React.FC<ImportWalletProps> = ({
           iframeContainer: document.getElementById(
             TurnkeyImportIframeContainerId,
           ),
-          iframeUrl: process.env.REACT_APP_IMPORT_IFRAME_URL ?? "https://import.turnkey.com",
+          iframeUrl:
+            process.env.REACT_APP_IMPORT_IFRAME_URL ??
+            "https://import.turnkey.com",
         });
         setIframeClient(newImportIframeClient);
       }
