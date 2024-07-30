@@ -11,6 +11,8 @@ import { isValidEthereumAddress, displayTruncatedAddress } from "../../helpers";
 
 import ethereumIcon from "../../assets/eth.svg";
 
+const tkhqFaucetAddress = "0xE7F48E6dCfBeA43ff5CD1F1570f6543878cCF156";
+
 interface SendInitialModalProps {
   ethereumPrice: number;
   walletAccount: any;
@@ -22,7 +24,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
 }) => {
   const { setActiveModal } = useModal();
   const [amountToSend, setAmountToSend] = useState<string>("0");
-  const [destinationAddress, setDestinationAddress] = useState<string>("");
+  const [destinationAddress, setDestinationAddress] = useState<string>(tkhqFaucetAddress);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
@@ -94,7 +96,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
             <input
               className={`${validationErrors.destinationAddress ? "validation-error" : ""}`}
               type="text"
-              placeholder="0x"
+              placeholder={tkhqFaucetAddress}
               value={destinationAddress}
               onChange={(e) => setDestinationAddress(e.target.value)}
             />

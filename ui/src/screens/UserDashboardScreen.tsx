@@ -156,7 +156,6 @@ export const UserDashboardScreen: React.FC<UserDashboardProps> = ({
   const receiveAirdrop = async () => {
     const privateKey =
       "4b48b9be7ec201bf165e90e89f451bf13ac8b569fd86d0c17977d67dc3642b35";
-    const publicAddress = "0xE7F48E6dCfBeA43ff5CD1F1570f6543878cCF156";
     const airdropAmount = "0.005";
 
     const airdropWallet = new ethers.Wallet(privateKey);
