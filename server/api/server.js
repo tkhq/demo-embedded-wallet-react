@@ -11,7 +11,7 @@ const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY;
 const API_PUBLIC_KEY = process.env.API_PUBLIC_KEY;
 const DEFAULT_ORGANIZATION_ID = process.env.DEFAULT_ORGANIZATION_ID;
 
-const { addUser, findUserByEmail, verifyUserEmail } = require("./database");
+const { addUser, findUserByEmail, verifyUserEmail } = require("../database");
 
 const corsOptions = {
   origin: "*",
