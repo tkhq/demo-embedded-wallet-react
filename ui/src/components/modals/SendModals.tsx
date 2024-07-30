@@ -21,7 +21,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
   walletAccount = undefined,
 }) => {
   const { setActiveModal } = useModal();
-  const [amountToSend, setAmountToSend] = useState<string>("0.00");
+  const [amountToSend, setAmountToSend] = useState<string>("0");
   const [destinationAddress, setDestinationAddress] = useState<string>("");
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -42,7 +42,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
     }
     if (!isValidEthereumAddress(destinationAddress)) {
       nextValidationErrors["destinationAddress"] =
-        "must be valid ethereum address";
+        "must be a valid Ethereum address";
     }
     if (Object.keys(nextValidationErrors).length === 0) {
       setValidationErrors(nextValidationErrors);
@@ -64,8 +64,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
           <p className="modal-title">Send</p>
           <p className="modal-subtitle">
             Select the asset type, and enter the amount and destination address
-            you'd like to send from your <span>Turnkey Wallet</span>. Need to
-            get testnet funds? Click “Get funds” on the main app homepage.
+            you'd like to send from your <span>Turnkey Wallet</span>. Need testnet funds? Click “Get Funds” on the homepage. The default destination is Turnkey's Faucet address.
           </p>
         </div>
 
@@ -83,7 +82,7 @@ export const SendInitialModal: React.FC<SendInitialModalProps> = ({
             <input
               className={`${validationErrors.amountToSend ? "validation-error" : ""}`}
               type="text"
-              placeholder="0.00"
+              placeholder="0"
               value={amountToSend}
               onChange={(e) => setAmountToSend(e.target.value || "0")}
             />
@@ -216,7 +215,7 @@ export const SendReviewModal: React.FC<SendReviewModalProps> = ({
 
           <div className="network-section">
             <p className="section-label">Network</p>
-            <p className="section-sublabel big">Sepolia Ethereum</p>
+            <p className="section-sublabel big">Sepolia ETH</p>
           </div>
 
           <div className="divider" />
