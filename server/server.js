@@ -5,12 +5,14 @@ const app = express();
 const PORT = process.env.PORT || 5858;
 require("dotenv").config();
 
+// this is a duplicate; remove this file or the other at some point
+
 const API_BASE_URL = process.env.API_BASE_URL;
 const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY;
 const API_PUBLIC_KEY = process.env.API_PUBLIC_KEY;
 const DEFAULT_ORGANIZATION_ID = process.env.DEFAULT_ORGANIZATION_ID;
 
-const { addUser, findUserByEmail, verifyUserEmail } = require("../database");
+const { addUser, findUserByEmail, verifyUserEmail } = require("./database");
 
 const corsOptions = {
   origin: "*",
