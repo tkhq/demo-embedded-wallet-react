@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@turnkey/sdk-server':
-    specifier: ^1.0.0
-    version: 1.2.0
+    specifier: ^1.2.1
+    version: 1.2.1
   '@types/jest':
     specifier: ^27.0.1
     version: 27.5.2
@@ -101,8 +101,8 @@ packages:
     engines: {node: '>=18.0.0'}
     dev: false
 
-  /@turnkey/http@2.12.0:
-    resolution: {integrity: sha512-AubpEJUBairaaA2tVyNTyHzQ+hAKijEzjUXYL51yLU98zDGyl+EeQfGf/7rO2hg/Er+/y3dHjH8dMiQe+zv0JA==}
+  /@turnkey/http@2.12.1:
+    resolution: {integrity: sha512-NpUy033XXmTxYM/kKmfntLHVlWn5XsRwUgxE1BioGJ7vQ+PBM05m+fjRkH48aCrysaECtcR4qfSDohUxnyiXuA==}
     engines: {node: '>=16.0.0'}
     dependencies:
       '@turnkey/api-key-stamper': 0.4.0
@@ -113,12 +113,12 @@ packages:
       - encoding
     dev: false
 
-  /@turnkey/sdk-server@1.2.0:
-    resolution: {integrity: sha512-l1uJgr3DtOirJcNeA2ZkctotjkPRMgHnzjAIG8MJfTcAvYMpUVhOgBDY5DgGDRzsx/FTdhmmJm7PtAII1c57LQ==}
+  /@turnkey/sdk-server@1.2.1:
+    resolution: {integrity: sha512-FRHeVcmPeszmOZGN1k8WxgnF//pNwWFH3DYJ/2CE1StdcLZv7/4RKyjkgCh5i+kyN+zKQtnh+RmeNX5+nGCDuQ==}
     engines: {node: '>=18.0.0'}
     dependencies:
       '@turnkey/api-key-stamper': 0.4.0
-      '@turnkey/http': 2.12.0
+      '@turnkey/http': 2.12.1
       buffer: 6.0.3
       cross-fetch: 3.1.8
       elliptic: 6.5.6
