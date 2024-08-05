@@ -13,7 +13,6 @@ import {
 import checkboxCircle from "../assets/checkbox-circle.svg";
 
 const FRONTEND_URL = process.env.REACT_APP_FRONTEND_URL!;
-const JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs";
 
 const getMagicLinkTemplate = (action: string, email: string, method: string) =>
   `${FRONTEND_URL}/email-${action}?userEmail=${email}&continueWith=${method}&credentialBundle=%s`;
@@ -47,7 +46,6 @@ export const LandingScreen: React.FC = () => {
               oauthProviders: [
                 {
                   providerName: "Google Auth - Embedded Wallet",
-                  jwksUri: JWKS_URI,
                   oidcToken: response.credential,
                 },
               ],
