@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@turnkey/sdk-server": "^1.0.0",
+    "@turnkey/sdk-server": "^1.2.1",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
     "cors": "^2.8.5",
