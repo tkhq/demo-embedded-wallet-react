@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5858;
+const fs = require("fs");
 require("dotenv").config();
 
 const API_BASE_URL = process.env.API_BASE_URL;
