@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { Branding } from "../components/Branding";
 import { useKeyPress } from "../hooks/useKeyPress";
 import { useTurnkey } from "@turnkey/sdk-react";
+import { sha256 } from '@noble/hashes/sha2'
+import { bytesToHex } from '@noble/hashes/utils';
 import { TurnkeySDKApiTypes } from "@turnkey/sdk-browser";
 import {
   GoogleOAuthProvider,
@@ -378,7 +380,7 @@ export const LandingScreen: React.FC = () => {
               <GoogleOAuthProvider
                 clientId={process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID!}
               >
-                <GoogleLogin onSuccess={handleGoogleLogin} useOneTap />
+                <GoogleLogin nonce={authIframeClient?.iframePublicKey ? bytesToHex(sha256(authIframeClient.iframePublicKey)) : undefined} onSuccess={handleGoogleLogin} useOneTap />
               </GoogleOAuthProvider>
             </div>
 
