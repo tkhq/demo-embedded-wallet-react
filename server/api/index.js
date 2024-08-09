@@ -4,17 +4,17 @@ const cors = require("cors");
 const app = express();
 const PORT = process.env.PORT || 5858;
 const fs = require("fs");
-require('dotenv').config();
+require("dotenv").config();
 
 const API_BASE_URL = process.env.API_BASE_URL;
 const API_PRIVATE_KEY = process.env.API_PRIVATE_KEY;
 const API_PUBLIC_KEY = process.env.API_PUBLIC_KEY;
 const DEFAULT_ORGANIZATION_ID = process.env.DEFAULT_ORGANIZATION_ID;
 
-const { addUser, findUserByEmail, verifyUserEmail } = require('../database');
+const { addUser, findUserByEmail, verifyUserEmail } = require("../database");
 
 const corsOptions = {
-  origin: '*'
+  origin: "*",
 };
 
 app.use(cors(corsOptions));
@@ -24,8 +24,8 @@ const turnkeyConfig = {
   apiBaseUrl: API_BASE_URL,
   apiPrivateKey: API_PRIVATE_KEY,
   apiPublicKey: API_PUBLIC_KEY,
-  defaultOrganizationId: DEFAULT_ORGANIZATION_ID
-}
+  defaultOrganizationId: DEFAULT_ORGANIZATION_ID,
+};
 
 const turnkeyServerClient = new Turnkey(turnkeyConfig);
 
@@ -37,16 +37,20 @@ const turnkeyProxyHandler = turnkeyServerClient.expressProxyHandler({
     "initUserEmailRecovery",
     "initImportWallet",
     "initImportPrivateKey",
-    "getSubOrgIds"
-  ]
+    "getSubOrgIds",
+  ],
 });
 
-app.get("/", (req, res) => res.send('Express on Vercel'));
+app.get("/", (req, res) => res.send("Express on Vercel"));
 
 app.post("/", turnkeyProxyHandler);
 
 app.post("/add-user", async (req, res) => {
-  const addUserResponse = await addUser(req.body.email, req.body.subOrganizationId, 0);
+  const addUserResponse = await addUser(
+    req.body.email,
+    req.body.subOrganizationId,
+    0,
+  );
   res.status(200).send({ user: addUserResponse });
 });
 
