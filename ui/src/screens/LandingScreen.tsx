@@ -381,7 +381,7 @@ export const LandingScreen: React.FC = () => {
               <GoogleOAuthProvider
                 clientId={process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID!}
               >
-                <GoogleLogin nonce={authIframeClient?.iframePublicKey ? bytesToHex(sha256(authIframeClient.iframePublicKey)) : undefined} onSuccess={handleGoogleLogin} useOneTap />
+                <GoogleLogin nonce={bytesToHex(sha256(authIframeClient.iframePublicKey))} onSuccess={handleGoogleLogin} useOneTap />
               </GoogleOAuthProvider> : null
             }
             </div>
