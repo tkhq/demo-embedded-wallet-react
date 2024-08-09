@@ -377,13 +377,14 @@ export const LandingScreen: React.FC = () => {
                 alignItems: "center",
               }}
             >
+            { authIframeClient?.iframePublicKey ?
               <GoogleOAuthProvider
                 clientId={process.env.REACT_APP_GOOGLE_OAUTH_CLIENT_ID!}
               >
-                <GoogleLogin nonce={authIframeClient?.iframePublicKey ? bytesToHex(sha256(authIframeClient.iframePublicKey)) : undefined} onSuccess={handleGoogleLogin} useOneTap />
-              </GoogleOAuthProvider>
+                <GoogleLogin nonce={bytesToHex(sha256(authIframeClient.iframePublicKey))} onSuccess={handleGoogleLogin} useOneTap />
+              </GoogleOAuthProvider> : null
+            }
             </div>
-
             <div
               className={`action-button tertiary lost-access`}
               onClick={continueWithEmail}
