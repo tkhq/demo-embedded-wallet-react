@@ -165,10 +165,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginWithPasskey = async (email: Email) => {
     dispatch({ type: "LOADING", payload: true })
     try {
+      console.log("loginWithPasskey", email)
       // Determine if the user has a sub-organization associated with their email
       const subOrgId = await getSubOrgIdByEmail(email as Email)
+      console.log("subOrgId", subOrgId)
       if (subOrgId?.length) {
         const loginResponse = await passkeyClient?.login()
+        console.log("loginResponse", loginResponse)
         if (loginResponse?.organizationId) {
           dispatch({
             type: "PASSKEY",
