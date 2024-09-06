@@ -2,6 +2,11 @@ import { SiteConfig } from "@/types"
 
 import { env } from "@/env.mjs"
 
+const baseUrl =
+  `https://${env.VERCEL_URL}` ||
+  env.NEXT_PUBLIC_APP_URL ||
+  "http://localhost:3000"
+
 export const siteConfig: SiteConfig = {
   name: "Demo Embedded Wallet",
   author: "turnkey",
@@ -17,11 +22,11 @@ export const siteConfig: SiteConfig = {
     "shadcn/ui",
   ],
   url: {
-    base: env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+    base: baseUrl,
     author: "https://turnkey.io",
   },
   links: {
     github: "https://github.com/tkhq/demo-embedded-wallet",
   },
-  ogImage: `${env.NEXT_PUBLIC_APP_URL}/og.jpg`,
+  ogImage: `${baseUrl}/og.jpg`,
 }

@@ -10,6 +10,7 @@ import {
 
 import { env } from "@/env.mjs"
 import { Attestation, Email } from "@/types/turnkey"
+import { siteConfig } from "@/config/site"
 import { turnkeyConfig } from "@/config/turnkey"
 
 const { TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY } = env
@@ -117,7 +118,7 @@ export const createUserSubOrg = async ({
 }
 
 const getMagicLinkTemplate = (action: string, email: string, method: string) =>
-  `${env.NEXT_PUBLIC_APP_URL}/email-${action}?userEmail=${email}&continueWith=${method}&credentialBundle=%s`
+  `${siteConfig.url.base}/email-${action}?userEmail=${email}&continueWith=${method}&credentialBundle=%s`
 
 export const initEmailAuth = async ({
   email,
