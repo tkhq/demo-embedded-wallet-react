@@ -23,8 +23,9 @@ export default function Features() {
             className=" text-white underline underline-offset-4"
             href="https://docs.turnkey.com/passkeys/introduction"
           >
-            and more.
+            and more
           </Link>
+          .
         </p>
       </Feature>
       <Feature title="Secure" icon={<ShieldCheck />}>

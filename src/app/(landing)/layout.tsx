@@ -1,13 +1,15 @@
 import Image from "next/image"
 
-import { Button } from "@/components/ui/button"
-import Auth from "@/components/auth"
+import Features from "@/components/features"
 import { ModeToggle } from "@/components/mode-toggle"
 
-import gradient from "../../public/purple-gradient.png"
-import Features from "../components/features"
+import gradient from "../../../public/purple-gradient.png"
 
-export default function Landing() {
+interface LandingLayoutProps {
+  children: React.ReactNode
+}
+
+export default function LandingLayout({ children }: LandingLayoutProps) {
   return (
     <main className="grid h-screen md:grid-cols-[2fr,3fr]">
       <div className="relative hidden md:block">
@@ -18,10 +20,8 @@ export default function Landing() {
         />
         <Features />
       </div>
-      <div className="flex flex-col items-center justify-center">
-        <Auth />
-        <ModeToggle className="absolute right-4 top-4" />
-      </div>
+      {children}
+      <ModeToggle className="absolute right-4 top-4" />
     </main>
   )
 }

@@ -6,9 +6,10 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <main>
+    // <main className="grid h-screen text-center sm:grid-cols-[200px_1fr] xl:grid-cols-[270px_1fr]">
+    <main className=" h-screen dark:bg-neutral-950/80">
       <NavMenu />
-      <div>{children}</div>
+      <div className="">{children}</div>
     </main>
   )
 }

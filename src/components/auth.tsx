@@ -1,21 +1,58 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Mail } from "lucide-react"
+import { useRouter } from "next/navigation"
+import {
+  bugRepro,
+  createUserSubOrg,
+  getSubOrgIdByEmail,
+} from "@/actions/turnkey"
+import { useAuth } from "@/providers/auth-provider"
+
+import { Email } from "@/types/turnkey"
+import { usePasskey } from "@/hooks/use-passkey"
+import { useUser } from "@/hooks/use-user"
 
 import { Icons } from "./icons"
 import Legal from "./legal"
 import { Button } from "./ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card"
+import { LoadingButton } from "./ui/button.loader"
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { Input } from "./ui/input"
-import { Label } from "./ui/label"
 import { Separator } from "./ui/separator"
 
 export default function Auth() {
+  const { user } = useUser()
+  const { client } = usePasskey()
+  const { initEmailLogin, state, loginWithPasskey } = useAuth()
+  const [email, setEmail] = useState<string>("")
+
+  const [loadingAction, setLoadingAction] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    if (user) {
+      router.push("/dashboard")
+    }
+  }, [user])
+
+  const handlePasskeyLogin = async () => {
+    setLoadingAction("passkey")
+    if (!email || !client) {
+      setLoadingAction(null)
+      return
+    }
+    await loginWithPasskey(email as Email)
+    setLoadingAction(null)
+  }
+
+  const handleEmailLogin = async () => {
+    setLoadingAction("email")
+    await initEmailLogin(email as Email)
+    setLoadingAction(null)
+  }
+
   return (
     <>
       <Card className="mx-auto w-2/3 max-w-lg">
@@ -24,24 +61,26 @@ export default function Auth() {
           <CardTitle className="text-center text-xl font-medium">
             Login or Sign up
           </CardTitle>
-          {/* <CardDescription>
-            Enter your email below to login to your account
-          </CardDescription> */}
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              {/* <Label htmlFor="email">Email</Label> */}
               <Input
                 id="email"
                 type="email"
                 placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
-            <Button type="submit" className="w-full font-semibold">
+            <LoadingButton
+              className=""
+              onClick={handlePasskeyLogin}
+              loading={state.loading && loadingAction === "passkey"}
+            >
               Continue
-            </Button>
+            </LoadingButton>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />
@@ -52,9 +91,14 @@ export default function Auth() {
                 </span>
               </div>
             </div>
-            <Button variant="outline" className="w-full font-semibold">
+            <LoadingButton
+              variant="outline"
+              className="w-full font-semibold"
+              onClick={handleEmailLogin}
+              loading={state.loading && loadingAction === "email"}
+            >
               Continue with Email
-            </Button>
+            </LoadingButton>
             <Button variant="outline" className="w-full font-semibold">
               Continue with Google
             </Button>
