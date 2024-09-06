@@ -3,15 +3,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import {
-  bugRepro,
-  createUserSubOrg,
-  getSubOrgIdByEmail,
-} from "@/actions/turnkey"
 import { useAuth } from "@/providers/auth-provider"
 
 import { Email } from "@/types/turnkey"
-import { usePasskey } from "@/hooks/use-passkey"
+import { getPassKeyClient } from "@/lib/turnkey"
 import { useUser } from "@/hooks/use-user"
 
 import { Icons } from "./icons"
@@ -24,12 +19,14 @@ import { Separator } from "./ui/separator"
 
 export default function Auth() {
   const { user } = useUser()
-  const { client } = usePasskey()
+
   const { initEmailLogin, state, loginWithPasskey } = useAuth()
   const [email, setEmail] = useState<string>("")
 
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
   const router = useRouter()
+
+  const client = getPassKeyClient()
 
   useEffect(() => {
     if (user) {
@@ -38,11 +35,13 @@ export default function Auth() {
   }, [user])
 
   const handlePasskeyLogin = async () => {
+    console.log("attempt login with passkey", client, email)
     setLoadingAction("passkey")
     if (!email || !client) {
       setLoadingAction(null)
       return
     }
+    console.log("logging in with passkey", email)
     await loginWithPasskey(email as Email)
     setLoadingAction(null)
   }

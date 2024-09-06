@@ -1,33 +1,90 @@
-"use server"
-
-import { createActivityPoller, TurnkeyClient } from "@turnkey/http"
-import { ApiKeyStamper } from "@turnkey/sdk-browser"
 import {
   Turnkey,
-  TurnkeyApiClient,
-  TurnkeyServerClient,
-} from "@turnkey/sdk-server"
+  TurnkeyBrowserClient,
+  TurnkeyIframeClient,
+  TurnkeyPasskeyClient,
+  WebauthnStamper,
+} from "@turnkey/sdk-browser"
 
-import { env } from "@/env.mjs"
 import { turnkeyConfig } from "@/config/turnkey"
 
-let turnkeyServerClient: TurnkeyServerClient | null = null
+let turnkeyClient: Turnkey | undefined = undefined
+let browserClient: TurnkeyBrowserClient | undefined = undefined
+let iFrameClient: TurnkeyIframeClient | undefined = undefined
+let passKeyClient: TurnkeyPasskeyClient | undefined = undefined
 
-const { TURNKEY_API_PUBLIC_KEY, TURNKEY_API_PRIVATE_KEY } = env
-
-export const getTurnkeyServerClient = (): TurnkeyServerClient => {
-  if (!turnkeyServerClient) {
-    const stamper = new ApiKeyStamper({
-      apiPublicKey: TURNKEY_API_PUBLIC_KEY,
-      apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
-    })
-
-    turnkeyServerClient = new TurnkeyServerClient({
+export const getTurnkeyClient = (): Turnkey => {
+  if (!turnkeyClient) {
+    turnkeyClient = new Turnkey({
       apiBaseUrl: turnkeyConfig.apiBaseUrl,
-      organizationId: turnkeyConfig.organizationId,
-      stamper,
+      defaultOrganizationId: turnkeyConfig.organizationId,
     })
   }
+  return turnkeyClient
+}
 
-  return turnkeyServerClient
+export const getBrowserClient = async (): Promise<
+  TurnkeyBrowserClient | undefined
+> => {
+  if (!browserClient) {
+    browserClient = await getTurnkeyClient().currentUserSession()
+  }
+  return browserClient
+}
+
+export const getIFrameClient = async (): Promise<TurnkeyIframeClient> => {
+  if (!iFrameClient) {
+    const { containerId, url, elementId } = turnkeyConfig.iFrame
+
+    let iframeContainer = document.getElementById(containerId)
+
+    if (!iframeContainer) {
+      iframeContainer = document.createElement("div")
+      iframeContainer.id = containerId
+      iframeContainer.style.display = "none"
+      document.body.appendChild(iframeContainer)
+    }
+
+    const { IframeStamper, TurnkeyIframeClient } = await import(
+      "@turnkey/sdk-browser"
+    )
+
+    const iframeStamper = new IframeStamper({
+      iframeContainer,
+      iframeUrl: url,
+      iframeElementId: elementId,
+    })
+
+    await iframeStamper.init()
+
+    iFrameClient = new TurnkeyIframeClient({
+      stamper: iframeStamper,
+      apiBaseUrl: turnkeyConfig.apiBaseUrl,
+      organizationId: turnkeyConfig.organizationId,
+    })
+
+    console.log("setting client", iFrameClient)
+  }
+
+  return iFrameClient
+}
+
+export const getPassKeyClient = async (): Promise<TurnkeyPasskeyClient> => {
+  if (!passKeyClient) {
+    const { apiBaseUrl, organizationId, passkey } = turnkeyConfig
+
+    const stamper = new WebauthnStamper({
+      rpId: passkey.rpId,
+    })
+
+    passKeyClient = new TurnkeyPasskeyClient({
+      stamper,
+      apiBaseUrl,
+      organizationId,
+    })
+
+    console.log("setting passkey client", passKeyClient)
+  }
+
+  return passKeyClient
 }

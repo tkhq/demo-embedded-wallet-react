@@ -8,9 +8,8 @@ import {
 import { getAddress } from "viem"
 
 import { Account, Wallet } from "@/types/turnkey"
+import { getBrowserClient, getPassKeyClient } from "@/lib/turnkey"
 import { publicClient } from "@/lib/web3"
-
-import { usePasskey } from "./use-passkey"
 
 const getWalletsWithAccounts = async (browserClient: TurnkeyBrowserClient) => {
   const { wallets } = await browserClient.getWallets()
@@ -50,13 +49,14 @@ export const useWallets = () => {
   const { client: browserClient } = useContext(TurnkeyContext)
 
   // Use Turnkey Passkey Client to make authenticated write requests such as creating wallets and accounts
-  const { client: passkeyClient } = usePasskey()
+
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null)
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null)
 
   useEffect(() => {
     const fetchWallets = async () => {
+      const browserClient = await getBrowserClient()
       console.log("fetchWallets", browserClient)
       if (browserClient) {
         console.log("fetchWallets 2")
@@ -80,6 +80,7 @@ export const useWallets = () => {
   }, [selectedWallet])
 
   const newWalletAccount = async () => {
+    const passkeyClient = await getPassKeyClient()
     if (passkeyClient && selectedWallet && browserClient) {
       const newAccount = defaultEthereumAccountAtIndex(
         selectedWallet.accounts.length
@@ -103,6 +104,7 @@ export const useWallets = () => {
   }
 
   const newWallet = async (walletName?: string) => {
+    const passkeyClient = await getPassKeyClient()
     if (passkeyClient && browserClient) {
       const { walletId } = await passkeyClient.createWallet({
         walletName: walletName || "New Wallet",

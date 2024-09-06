@@ -9,8 +9,7 @@ import {
 } from "@/actions/turnkey"
 
 import { Email, User } from "@/types/turnkey"
-import { getIFrameClient } from "@/hooks/use-iframe"
-import { usePasskey } from "@/hooks/use-passkey"
+import { getIFrameClient, getPassKeyClient } from "@/lib/turnkey"
 
 export const loginResponseToUser = (loginResponse: {
   organizationId: string
@@ -61,6 +60,7 @@ const initialState: AuthState = {
 }
 
 function authReducer(state: AuthState, action: AuthActionType): AuthState {
+  console.log("authReducer", action, state)
   switch (action.type) {
     case "LOADING":
       return { ...state, loading: action.payload }
@@ -98,8 +98,6 @@ const AuthContext = createContext<{
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
-  // const { client: iframeClient, initializeClient } = getIFrameClient()
-  const { client: passkeyClient } = usePasskey()
   const router = useRouter()
 
   const initEmailLogin = async (email: Email) => {
@@ -159,6 +157,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginWithPasskey = async (email: Email) => {
     dispatch({ type: "LOADING", payload: true })
     try {
+      const passkeyClient = await getPassKeyClient()
       // Determine if the user has a sub-organization associated with their email
       const subOrgId = await getSubOrgIdByEmail(email as Email)
       if (subOrgId?.length) {

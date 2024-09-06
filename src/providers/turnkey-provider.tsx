@@ -40,18 +40,14 @@ export const TurnkeyProvider: React.FC<TurnkeyProviderProps> = ({
   )
 
   useEffect(() => {
-    const initializeTurnkey = async () => {
-      const newTurnkey = new Turnkey({
-        apiBaseUrl: turnkeyConfig.apiBaseUrl,
-        defaultOrganizationId: turnkeyConfig.organizationId,
-      })
-      newTurnkey.currentUserSession().then((client) => {
-        setClient(client)
-      })
-      setTurnkey(newTurnkey)
-    }
-
-    initializeTurnkey()
+    const newTurnkey = new Turnkey({
+      apiBaseUrl: turnkeyConfig.apiBaseUrl,
+      defaultOrganizationId: turnkeyConfig.organizationId,
+    })
+    newTurnkey.currentUserSession().then((client) => {
+      setClient(client)
+    })
+    setTurnkey(newTurnkey)
   }, [])
 
   return (
