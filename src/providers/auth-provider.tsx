@@ -170,6 +170,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const subOrgId = await getSubOrgIdByEmail(email as Email)
       console.log("subOrgId", subOrgId)
       if (subOrgId?.length) {
+        console.log("passkeyClient", passkeyClient)
         const loginResponse = await passkeyClient?.login()
         console.log("loginResponse", loginResponse)
         if (loginResponse?.organizationId) {
