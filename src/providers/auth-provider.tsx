@@ -1,15 +1,22 @@
 "use client"
 
-import { createContext, ReactNode, useContext, useReducer } from "react"
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react"
 import { useRouter } from "next/navigation"
 import {
   createUserSubOrg,
   getSubOrgIdByEmail,
   initEmailAuth,
 } from "@/actions/turnkey"
+import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email, User } from "@/types/turnkey"
-import { getIFrameClient, getPassKeyClient } from "@/lib/turnkey"
+import { getPassKeyClient } from "@/lib/turnkey"
 
 export const loginResponseToUser = (loginResponse: {
   organizationId: string
@@ -89,26 +96,28 @@ const AuthContext = createContext<{
     credentialBundle: string
   }) => Promise<void>
   loginWithPasskey: (email: Email) => Promise<void>
+  logout: () => Promise<void>
 }>({
   state: initialState,
   initEmailLogin: async () => {},
   completeEmailAuth: async () => {},
   loginWithPasskey: async () => {},
+  logout: async () => {},
 })
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(authReducer, initialState)
   const router = useRouter()
+  const { turnkey, authIframeClient, passkeyClient } = useTurnkey()
 
   const initEmailLogin = async (email: Email) => {
-    const iframeClient = await getIFrameClient()
     dispatch({ type: "LOADING", payload: true })
     try {
       const response = await initEmailAuth({
         email,
-        targetPublicKey: `${iframeClient?.iframePublicKey}`,
+        targetPublicKey: `${authIframeClient?.iframePublicKey}`,
       })
-      console.log("response", response)
+
       if (response) {
         dispatch({ type: "INIT_EMAIL_AUTH" })
         router.push(`/email-auth?userEmail=${email}`)
@@ -130,15 +139,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     continueWith: string
     credentialBundle: string
   }) => {
-    const iframeClient = await getIFrameClient()
-
     if (userEmail && continueWith === "email" && credentialBundle) {
       dispatch({ type: "LOADING", payload: true })
 
       try {
-        await iframeClient?.injectCredentialBundle(credentialBundle)
-        const loginResponse = await iframeClient?.login()
-        console.log("loginResponse", loginResponse)
+        await authIframeClient?.injectCredentialBundle(credentialBundle)
+
+        const loginResponse = await authIframeClient?.login()
+
         if (loginResponse?.organizationId) {
           dispatch({
             type: "COMPLETE_EMAIL_AUTH",
@@ -157,7 +165,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginWithPasskey = async (email: Email) => {
     dispatch({ type: "LOADING", payload: true })
     try {
-      const passkeyClient = await getPassKeyClient()
       // Determine if the user has a sub-organization associated with their email
       const subOrgId = await getSubOrgIdByEmail(email as Email)
       if (subOrgId?.length) {
@@ -199,9 +206,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const logout = async () => {
+    await turnkey?.logoutUser()
+    router.push("/")
+  }
+
   return (
     <AuthContext.Provider
-      value={{ state, initEmailLogin, completeEmailAuth, loginWithPasskey }}
+      value={{
+        state,
+        initEmailLogin,
+        completeEmailAuth,
+        loginWithPasskey,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>

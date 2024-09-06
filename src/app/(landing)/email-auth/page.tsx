@@ -3,6 +3,7 @@
 import { Suspense, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
+import { useTurnkey } from "@turnkey/sdk-react"
 import { Loader, Send } from "lucide-react"
 
 import {
@@ -16,15 +17,17 @@ import { Icons } from "@/components/icons"
 function EmailAuthContent() {
   const searchParams = useSearchParams()
   const { completeEmailAuth } = useAuth()
+  const { authIframeClient } = useTurnkey()
   const userEmail = searchParams.get("userEmail")
   const continueWith = searchParams.get("continueWith")
   const credentialBundle = searchParams.get("credentialBundle")
 
   useEffect(() => {
-    if (userEmail && continueWith && credentialBundle) {
+    // Ensure that the authIframeClient is available before attempting to complete the email auth
+    if (authIframeClient && userEmail && continueWith && credentialBundle) {
       completeEmailAuth({ userEmail, continueWith, credentialBundle })
     }
-  }, [])
+  }, [authIframeClient])
 
   return (
     <main className="flex flex-col items-center justify-center">

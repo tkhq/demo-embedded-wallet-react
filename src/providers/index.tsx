@@ -1,8 +1,12 @@
 "use client"
 
+// import { TurnkeyProvider } from "./turnkey-provider"
+import { TurnkeyProvider } from "@turnkey/sdk-react"
+
+import { turnkeyConfig } from "@/config/turnkey"
+
 import { AuthProvider } from "./auth-provider"
 import { ThemeProvider } from "./theme-provider"
-import { TurnkeyProvider } from "./turnkey-provider"
 
 export const Providers: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -13,7 +17,13 @@ export const Providers: React.FC<{ children: React.ReactNode }> = ({
     enableSystem
     disableTransitionOnChange
   >
-    <TurnkeyProvider>
+    <TurnkeyProvider
+      config={{
+        rpId: turnkeyConfig.passkey.rpId,
+        apiBaseUrl: turnkeyConfig.apiBaseUrl,
+        defaultOrganizationId: turnkeyConfig.organizationId,
+      }}
+    >
       <AuthProvider> {children}</AuthProvider>
     </TurnkeyProvider>
   </ThemeProvider>

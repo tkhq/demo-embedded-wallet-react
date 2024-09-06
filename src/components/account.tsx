@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
+import { useAuth } from "@/providers/auth-provider"
+import { useTurnkey } from "@turnkey/sdk-react"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -29,7 +31,9 @@ import { Skeleton } from "./ui/skeleton"
 
 export default function Account() {
   const router = useRouter()
-  const { user, logout } = useUser()
+  const { turnkey } = useTurnkey()
+  const { logout } = useAuth()
+  const { user } = useUser()
   const {
     newWallet,
     wallets,
@@ -80,6 +84,20 @@ export default function Account() {
       setIsNewWalletMode(false)
     }, 100)
   }, [isOpen])
+
+  // Check if the user is undefined and redirect to "/"
+  // useEffect(() => {
+  //   const checkUser = async () => {
+  //     const user = await turnkey?.getCurrentUser()
+  //     console.log("user", user)
+  //     if (!user) {
+  //       router.push("/")
+  //     }
+  //   }
+  //   if (turnkey) {
+  //     checkUser()
+  //   }
+  // }, [turnkey])
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

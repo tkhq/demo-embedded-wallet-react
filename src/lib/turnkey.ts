@@ -35,51 +35,51 @@ export const getBrowserClient = async (): Promise<
 
 let iFrameStamper: IframeStamper | undefined = undefined
 
-export const getIFrameClient = async (): Promise<
-  TurnkeyIframeClient | undefined
-> => {
-  if (!iFrameClient) {
-    const { containerId, url, elementId } = turnkeyConfig.iFrame
+// export const getIFrameClient = async (): Promise<
+//   TurnkeyIframeClient | undefined
+// > => {
+//   if (!iFrameClient) {
+//     const { containerId, url, elementId } = turnkeyConfig.iFrame
 
-    let iframeContainer = document.getElementById(containerId)
+//     let iframeContainer = document.getElementById(containerId)
 
-    if (!iframeContainer) {
-      iframeContainer = document.createElement("div")
-      iframeContainer.id = containerId
-      iframeContainer.style.display = "none"
-      document.body.appendChild(iframeContainer)
-    }
+//     if (!iframeContainer) {
+//       iframeContainer = document.createElement("div")
+//       iframeContainer.id = containerId
+//       iframeContainer.style.display = "none"
+//       document.body.appendChild(iframeContainer)
+//     }
 
-    try {
-      const { IframeStamper, TurnkeyIframeClient } = await import(
-        "@turnkey/sdk-browser"
-      )
+//     try {
+//       const { IframeStamper, TurnkeyIframeClient } = await import(
+//         "@turnkey/sdk-browser"
+//       )
 
-      if (!iFrameStamper) {
-        iFrameStamper = new IframeStamper({
-          iframeContainer,
-          iframeUrl: url,
-          iframeElementId: elementId,
-        })
-      }
-      await iFrameStamper.init()
+//       if (!iFrameStamper) {
+//         iFrameStamper = new IframeStamper({
+//           iframeContainer,
+//           iframeUrl: url,
+//           iframeElementId: elementId,
+//         })
+//       }
+//       await iFrameStamper.init()
 
-      iFrameClient = new TurnkeyIframeClient({
-        stamper: iFrameStamper,
-        apiBaseUrl: turnkeyConfig.apiBaseUrl,
-        organizationId: turnkeyConfig.organizationId,
-      })
-    } catch (error) {
-      console.error("Failed to initialize iFrameClient", error)
-      // remove the iframeContainer if initialization fails
-      if (iframeContainer) {
-        iframeContainer.remove()
-      }
-    }
-  }
+//       iFrameClient = new TurnkeyIframeClient({
+//         stamper: iFrameStamper,
+//         apiBaseUrl: turnkeyConfig.apiBaseUrl,
+//         organizationId: turnkeyConfig.organizationId,
+//       })
+//     } catch (error) {
+//       console.error("Failed to initialize iFrameClient", error)
+//       // remove the iframeContainer if initialization fails
+//       if (iframeContainer) {
+//         iframeContainer.remove()
+//       }
+//     }
+//   }
 
-  return iFrameClient
-}
+//   return iFrameClient
+// }
 
 export const getPassKeyClient = async (): Promise<TurnkeyPasskeyClient> => {
   if (!passKeyClient) {

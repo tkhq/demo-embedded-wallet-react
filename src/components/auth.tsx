@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
+import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email } from "@/types/turnkey"
 import { getPassKeyClient } from "@/lib/turnkey"
@@ -19,14 +20,12 @@ import { Separator } from "./ui/separator"
 
 export default function Auth() {
   const { user } = useUser()
-
+  const { passkeyClient } = useTurnkey()
   const { initEmailLogin, state, loginWithPasskey } = useAuth()
   const [email, setEmail] = useState<string>("")
 
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
   const router = useRouter()
-
-  const client = getPassKeyClient()
 
   useEffect(() => {
     if (user) {
@@ -35,9 +34,9 @@ export default function Auth() {
   }, [user])
 
   const handlePasskeyLogin = async () => {
-    console.log("attempt login with passkey", client, email)
+    console.log("attempt login with passkey", passkeyClient, email)
     setLoadingAction("passkey")
-    if (!email || !client) {
+    if (!email || !passkeyClient) {
       setLoadingAction(null)
       return
     }

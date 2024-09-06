@@ -5,11 +5,11 @@ import {
   defaultEthereumAccountAtIndex,
   type TurnkeyBrowserClient,
 } from "@turnkey/sdk-browser"
+import { useTurnkey } from "@turnkey/sdk-react"
 import { getAddress } from "viem"
 
 import { Account, Wallet } from "@/types/turnkey"
 import { getBrowserClient, getPassKeyClient } from "@/lib/turnkey"
-import { publicClient } from "@/lib/web3"
 
 const getWalletsWithAccounts = async (browserClient: TurnkeyBrowserClient) => {
   const { wallets } = await browserClient.getWallets()
@@ -47,7 +47,7 @@ const getWalletsWithAccounts = async (browserClient: TurnkeyBrowserClient) => {
  */
 export const useWallets = () => {
   // Use Turnkey Browser Client to make read-only requests such as fetching wallets and accounts
-  const { client: browserClient } = useContext(TurnkeyContext)
+  const { getActiveClient, passkeyClient, turnkey } = useTurnkey()
 
   // Use Turnkey Passkey Client to make authenticated write requests such as creating wallets and accounts
 
@@ -57,10 +57,11 @@ export const useWallets = () => {
 
   useEffect(() => {
     const fetchWallets = async () => {
-      const browserClient = await getBrowserClient()
+      const browserClient = await turnkey?.currentUserSession()
       console.log("fetchWallets", browserClient)
       if (browserClient) {
         console.log("fetchWallets 2")
+
         const wallets = await getWalletsWithAccounts(browserClient)
 
         setWallets(wallets)
@@ -71,7 +72,7 @@ export const useWallets = () => {
       }
     }
     fetchWallets()
-  }, [browserClient])
+  }, [getActiveClient])
 
   // When a wallet is selected, set the selected account to the first account in the wallet
   useEffect(() => {
@@ -81,7 +82,7 @@ export const useWallets = () => {
   }, [selectedWallet])
 
   const newWalletAccount = async () => {
-    const passkeyClient = await getPassKeyClient()
+    const browserClient = await turnkey?.currentUserSession()
     if (passkeyClient && selectedWallet && browserClient) {
       const newAccount = defaultEthereumAccountAtIndex(
         selectedWallet.accounts.length
@@ -105,7 +106,7 @@ export const useWallets = () => {
   }
 
   const newWallet = async (walletName?: string) => {
-    const passkeyClient = await getPassKeyClient()
+    const browserClient = await turnkey?.currentUserSession()
     if (passkeyClient && browserClient) {
       const { walletId } = await passkeyClient.createWallet({
         walletName: walletName || "New Wallet",

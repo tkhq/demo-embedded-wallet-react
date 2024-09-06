@@ -122,6 +122,7 @@ export const initEmailAuth = async ({
   email: Email
   targetPublicKey: string
 }) => {
+  console.log("initEmailAuth", email, targetPublicKey)
   const organizationId = await getSubOrgIdByEmail(email as Email)
   const magicLinkTemplate = getMagicLinkTemplate("auth", email, "email")
   console.log("magicLinkTemplate", magicLinkTemplate)
