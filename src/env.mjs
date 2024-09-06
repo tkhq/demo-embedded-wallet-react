@@ -1,14 +1,15 @@
+import { vercel } from "@t3-oss/env-core/presets"
 import { createEnv } from "@t3-oss/env-nextjs"
 import { z } from "zod"
 
 export const env = createEnv({
   client: {
-    NEXT_PUBLIC_APP_URL: z.string().min(1),
+    NEXT_PUBLIC_APP_URL: z.string().optional(),
     NEXT_PUBLIC_BASE_URL: z.string().min(1),
     NEXT_PUBLIC_ORGANIZATION_ID: z.string().min(1),
   },
   server: {
-    NEXT_PUBLIC_APP_URL: z.string().min(1),
+    NEXT_PUBLIC_APP_URL: z.string().optional(),
     TURNKEY_API_PUBLIC_KEY: z.string().min(1),
     TURNKEY_API_PRIVATE_KEY: z.string().min(1),
     NEXT_PUBLIC_BASE_URL: z.string().min(1),
@@ -25,4 +26,5 @@ export const env = createEnv({
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     COINGECKO_API_KEY: process.env.COINGECKO_API_KEY,
   },
+  extends: [vercel()],
 })
