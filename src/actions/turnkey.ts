@@ -123,14 +123,15 @@ export const initEmailAuth = async ({
   targetPublicKey: string
 }) => {
   const organizationId = await getSubOrgIdByEmail(email as Email)
-
+  const magicLinkTemplate = getMagicLinkTemplate("auth", email, "email")
+  console.log("magicLinkTemplate", magicLinkTemplate)
   if (organizationId?.length) {
     const authResponse = await client.emailAuth({
       email,
       targetPublicKey,
       organizationId,
       emailCustomization: {
-        magicLinkTemplate: getMagicLinkTemplate("auth", email, "email"),
+        magicLinkTemplate,
       },
     })
 

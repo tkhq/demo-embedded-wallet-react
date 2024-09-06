@@ -24,7 +24,7 @@ function EmailAuthContent() {
     if (userEmail && continueWith && credentialBundle) {
       completeEmailAuth({ userEmail, continueWith, credentialBundle })
     }
-  }, [searchParams, completeEmailAuth, credentialBundle])
+  }, [])
 
   return (
     <main className="flex flex-col items-center justify-center">

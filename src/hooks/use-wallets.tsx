@@ -20,9 +20,10 @@ const getWalletsWithAccounts = async (browserClient: TurnkeyBrowserClient) => {
       })
       const accountsWithBalance = await Promise.all(
         accounts.map(async ({ address, ...account }) => {
-          const balance = await publicClient.getBalance({
-            address: getAddress(address),
-          })
+          // const balance = await publicClient.getBalance({
+          //   address: getAddress(address),
+          // })
+          const balance = BigInt(0)
           return { ...account, address: getAddress(address), balance }
         })
       )

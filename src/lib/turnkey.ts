@@ -1,4 +1,5 @@
 import {
+  IframeStamper,
   Turnkey,
   TurnkeyBrowserClient,
   TurnkeyIframeClient,
@@ -32,7 +33,11 @@ export const getBrowserClient = async (): Promise<
   return browserClient
 }
 
-export const getIFrameClient = async (): Promise<TurnkeyIframeClient> => {
+let iFrameStamper: IframeStamper | undefined = undefined
+
+export const getIFrameClient = async (): Promise<
+  TurnkeyIframeClient | undefined
+> => {
   if (!iFrameClient) {
     const { containerId, url, elementId } = turnkeyConfig.iFrame
 
@@ -45,25 +50,32 @@ export const getIFrameClient = async (): Promise<TurnkeyIframeClient> => {
       document.body.appendChild(iframeContainer)
     }
 
-    const { IframeStamper, TurnkeyIframeClient } = await import(
-      "@turnkey/sdk-browser"
-    )
+    try {
+      const { IframeStamper, TurnkeyIframeClient } = await import(
+        "@turnkey/sdk-browser"
+      )
 
-    const iframeStamper = new IframeStamper({
-      iframeContainer,
-      iframeUrl: url,
-      iframeElementId: elementId,
-    })
+      if (!iFrameStamper) {
+        iFrameStamper = new IframeStamper({
+          iframeContainer,
+          iframeUrl: url,
+          iframeElementId: elementId,
+        })
+      }
+      await iFrameStamper.init()
 
-    await iframeStamper.init()
-
-    iFrameClient = new TurnkeyIframeClient({
-      stamper: iframeStamper,
-      apiBaseUrl: turnkeyConfig.apiBaseUrl,
-      organizationId: turnkeyConfig.organizationId,
-    })
-
-    console.log("setting client", iFrameClient)
+      iFrameClient = new TurnkeyIframeClient({
+        stamper: iFrameStamper,
+        apiBaseUrl: turnkeyConfig.apiBaseUrl,
+        organizationId: turnkeyConfig.organizationId,
+      })
+    } catch (error) {
+      console.error("Failed to initialize iFrameClient", error)
+      // remove the iframeContainer if initialization fails
+      if (iframeContainer) {
+        iframeContainer.remove()
+      }
+    }
   }
 
   return iFrameClient

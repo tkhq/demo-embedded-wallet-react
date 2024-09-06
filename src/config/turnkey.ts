@@ -1,5 +1,5 @@
 import { env } from "@/env.mjs"
-import { getEffectiveDomain } from "@/lib/utils"
+import { getRpId } from "@/lib/utils"
 
 import { siteConfig } from "./site"
 
@@ -14,6 +14,6 @@ export const turnkeyConfig = {
     containerId: "turnkey-auth-iframe-container-id",
   },
   passkey: {
-    rpId: getEffectiveDomain(siteConfig.url.base) || "localhost",
+    rpId: getRpId(siteConfig.url.base) || "localhost",
   },
 }

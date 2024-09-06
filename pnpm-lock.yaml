@@ -41,6 +41,9 @@ dependencies:
   '@turnkey/sdk-browser':
     specifier: ^1.3.0
     version: 1.3.0(@babel/core@7.24.4)(@babel/preset-env@7.25.3)(@types/react@18.3.1)(react@18.3.1)
+  '@turnkey/sdk-react':
+    specifier: ^1.0.7
+    version: 1.0.7(@babel/core@7.24.4)(@babel/preset-env@7.25.3)(@types/react@18.3.1)(react@18.3.1)
   '@turnkey/sdk-server':
     specifier: ^1.3.0
     version: 1.3.0
@@ -3956,6 +3959,24 @@ packages:
       - bufferutil
       - encoding
       - react
+      - supports-color
+      - utf-8-validate
+    dev: false
+
+  /@turnkey/sdk-react@1.0.7(@babel/core@7.24.4)(@babel/preset-env@7.25.3)(@types/react@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-LCOWp7c3adh9/SKraZwlVa6QOf6eXWyOVZYyW6EYMmJggOBn7s6oWHcnwHyvYHhsogB9NjzPHqWjFY6+J3h+EQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@turnkey/sdk-browser': 1.3.0(@babel/core@7.24.4)(@babel/preset-env@7.25.3)(@types/react@18.3.1)(react@18.3.1)
+      react: 18.3.1
+    transitivePeerDependencies:
+      - '@babel/core'
+      - '@babel/preset-env'
+      - '@types/react'
+      - bufferutil
+      - encoding
       - supports-color
       - utf-8-validate
     dev: false
