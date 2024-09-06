@@ -83,7 +83,7 @@ export const getPassKeyClient = async (): Promise<TurnkeyPasskeyClient> => {
       organizationId,
     })
 
-    console.log("setting passkey client", passKeyClient)
+    console.log("setting passkey client", passkey.rpId)
   }
 
   return passKeyClient
