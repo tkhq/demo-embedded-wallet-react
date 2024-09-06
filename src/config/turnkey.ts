@@ -1,4 +1,7 @@
 import { env } from "@/env.mjs"
+import { getEffectiveDomain } from "@/lib/utils"
+
+import { siteConfig } from "./site"
 
 const { NEXT_PUBLIC_ORGANIZATION_ID, NEXT_PUBLIC_BASE_URL } = env
 
@@ -11,8 +14,6 @@ export const turnkeyConfig = {
     containerId: "turnkey-auth-iframe-container-id",
   },
   passkey: {
-    // TODO: This should use the NEXT_PUBLIC_APP_URL which should be set by vercel for prod/preview deployments
-    // and will use localhost for local development
-    rpId: "localhost",
+    rpId: getEffectiveDomain(siteConfig.url.base) || "localhost",
   },
 }

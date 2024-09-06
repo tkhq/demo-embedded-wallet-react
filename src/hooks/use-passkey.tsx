@@ -19,6 +19,7 @@ export const usePasskey = () => {
         )
 
         const { apiBaseUrl, organizationId, passkey } = turnkeyConfig
+        console.log("passkey.rpId,", passkey.rpId)
         const stamper = new WebauthnStamper({
           rpId: passkey.rpId,
         })

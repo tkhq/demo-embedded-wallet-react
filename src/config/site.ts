@@ -3,9 +3,7 @@ import { SiteConfig } from "@/types"
 import { env } from "@/env.mjs"
 
 const baseUrl =
-  `https://${env.VERCEL_URL}` ||
-  env.NEXT_PUBLIC_APP_URL ||
-  "http://localhost:3000"
+  `https://${env.NEXT_PUBLIC_VERCEL_URL}` || "http://localhost:3000"
 
 export const siteConfig: SiteConfig = {
   name: "Demo Embedded Wallet",
