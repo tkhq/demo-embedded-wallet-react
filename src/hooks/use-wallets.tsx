@@ -9,7 +9,6 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { getAddress } from "viem"
 
 import { Account, Wallet } from "@/types/turnkey"
-import { getBrowserClient, getPassKeyClient } from "@/lib/turnkey"
 
 const getWalletsWithAccounts = async (browserClient: TurnkeyBrowserClient) => {
   const { wallets } = await browserClient.getWallets()

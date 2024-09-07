@@ -11,6 +11,7 @@ import {
   PlusCircleIcon,
   SettingsIcon,
 } from "lucide-react"
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 
 import { truncateAddress } from "@/lib/utils"
 import { useUser } from "@/hooks/use-user"
@@ -30,8 +31,6 @@ import {
 import { Skeleton } from "./ui/skeleton"
 
 export default function Account() {
-  const router = useRouter()
-  const { turnkey } = useTurnkey()
   const { logout } = useAuth()
   const { user } = useUser()
   const {
@@ -138,14 +137,14 @@ export default function Account() {
       <DropdownMenuContent className="w-min bg-background text-foreground">
         <DropdownMenuLabel className="dark flex w-full items-center gap-2">
           <Avatar className="h-12 w-12 bg-muted  p-1">
-            <AvatarFallback className="bg-transparent text-base font-semibold text-primary">
+            {/* <AvatarFallback className="bg-transparent text-base font-semibold text-primary">
               AD
-            </AvatarFallback>
+            </AvatarFallback> */}
           </Avatar>
           <div className="flex flex-col">
-            <span className=" font-semibold">x3y.in</span>
+            <span className=" font-semibold">{user?.username}</span>
             <span className="text-xs text-muted-foreground">
-              taylorjdawson@gmail.com
+              {user?.email || ""}
             </span>
           </div>
         </DropdownMenuLabel>

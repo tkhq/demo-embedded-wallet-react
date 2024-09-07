@@ -16,7 +16,6 @@ import {
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email, User } from "@/types/turnkey"
-import { getPassKeyClient } from "@/lib/turnkey"
 
 export const loginResponseToUser = (loginResponse: {
   organizationId: string
@@ -165,19 +164,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const loginWithPasskey = async (email: Email) => {
     dispatch({ type: "LOADING", payload: true })
     try {
-      console.log("loginWithPasskey", email)
       // Determine if the user has a sub-organization associated with their email
       const subOrgId = await getSubOrgIdByEmail(email as Email)
-      console.log("subOrgId", subOrgId)
+
       if (subOrgId?.length) {
-        console.log("passkeyClient", passkeyClient)
         const loginResponse = await passkeyClient?.login()
-        console.log("loginResponse", loginResponse)
+
         if (loginResponse?.organizationId) {
           dispatch({
             type: "PASSKEY",
             payload: loginResponseToUser(loginResponse),
           })
+
           router.push("/dashboard")
         }
       } else {
@@ -201,6 +199,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             challenge: encodedChallenge,
             attestation,
           })
+
+          if (res.subOrganizationId) {
+            router.push("/dashboard")
+          }
         }
       }
     } catch (error: any) {

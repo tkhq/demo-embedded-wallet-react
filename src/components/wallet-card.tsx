@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { CopyIcon } from "lucide-react"
 
 import { truncateAddress } from "@/lib/utils"
@@ -9,11 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { Skeleton } from "./ui/skeleton"
 
-export default function Component() {
+export default function WalletCard() {
   const { selectedWallet, selectedAccount } = useWallets()
   const walletAddress = "0xCE27...8aaD"
   const usdAmount = 13.15
   const ethAmount = 0.005
+
+  useEffect(() => {
+    console.log("selectedWallet", selectedWallet)
+    console.log("selectedAccount", selectedAccount)
+  }, [selectedWallet, selectedAccount])
 
   return (
     <Card className="w-[300px]  ">

@@ -7,7 +7,6 @@ import { useAuth } from "@/providers/auth-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email } from "@/types/turnkey"
-import { getPassKeyClient } from "@/lib/turnkey"
 import { useUser } from "@/hooks/use-user"
 
 import { Icons } from "./icons"
@@ -77,7 +76,16 @@ export default function Auth() {
               onClick={handlePasskeyLogin}
               loading={state.loading && loadingAction === "passkey"}
             >
-              Continue
+              Continue with passkey
+            </LoadingButton>
+
+            <LoadingButton
+              variant="outline"
+              className="w-full font-semibold"
+              onClick={handleEmailLogin}
+              loading={state.loading && loadingAction === "email"}
+            >
+              Continue with Email
             </LoadingButton>
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -89,27 +97,29 @@ export default function Auth() {
                 </span>
               </div>
             </div>
-            <LoadingButton
-              variant="outline"
-              className="w-full font-semibold"
-              onClick={handleEmailLogin}
-              loading={state.loading && loadingAction === "email"}
-            >
-              Continue with Email
-            </LoadingButton>
             <Button variant="outline" className="w-full font-semibold">
               Continue with Google
             </Button>
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  Or
+                </span>
+              </div>
+            </div>
             <Button variant="outline" className="w-full font-semibold">
               Continue with Wallet
             </Button>
           </div>
-          <div className="mt-4 text-center text-sm">
+          {/* <div className="mt-4 text-center text-sm">
             Lost passkey?{" "}
             <Link href="#" className="underline" prefetch={false}>
               Recover your wallet here.
             </Link>
-          </div>
+          </div> */}
         </CardContent>
       </Card>
       <Legal />

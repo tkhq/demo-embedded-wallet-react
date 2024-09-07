@@ -20,4 +20,6 @@ export type Wallet =
     accounts: Account[]
   }
 
-export type User = Awaited<ReturnType<Turnkey["getCurrentUser"]>>
+export type User = Awaited<ReturnType<Turnkey["getCurrentUser"]>> & {
+  email?: Email
+}

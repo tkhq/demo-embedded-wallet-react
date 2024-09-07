@@ -69,6 +69,13 @@ export const getSubOrgIdByUsername = async (username: string) => {
   return getSubOrgId({ username })
 }
 
+export const getUser = async (userId: string, subOrgId: string) => {
+  return client.getUser({
+    organizationId: subOrgId,
+    userId,
+  })
+}
+
 // @todo: Add overloads for creating suborgs with wallets, vs passkeys
 
 export const createUserSubOrg = async ({
@@ -94,6 +101,7 @@ export const createUserSubOrg = async ({
   const subOrganizationName = `Sub Org - ${email}`
   const userName = email.split("@")?.[0] || email
 
+  // @todo: Add a wallet to the sub org
   const subOrg = await client.createSubOrganization({
     organizationId: turnkeyConfig.organizationId,
     subOrganizationName,

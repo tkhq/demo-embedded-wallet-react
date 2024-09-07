@@ -14,26 +14,26 @@ let browserClient: TurnkeyBrowserClient | undefined = undefined
 let iFrameClient: TurnkeyIframeClient | undefined = undefined
 let passKeyClient: TurnkeyPasskeyClient | undefined = undefined
 
-export const getTurnkeyClient = (): Turnkey => {
-  if (!turnkeyClient) {
-    turnkeyClient = new Turnkey({
-      apiBaseUrl: turnkeyConfig.apiBaseUrl,
-      defaultOrganizationId: turnkeyConfig.organizationId,
-    })
-  }
-  return turnkeyClient
-}
+// export const getTurnkeyClient = (): Turnkey => {
+//   if (!turnkeyClient) {
+//     turnkeyClient = new Turnkey({
+//       apiBaseUrl: turnkeyConfig.apiBaseUrl,
+//       defaultOrganizationId: turnkeyConfig.organizationId,
+//     })
+//   }
+//   return turnkeyClient
+// }
 
-export const getBrowserClient = async (): Promise<
-  TurnkeyBrowserClient | undefined
-> => {
-  if (!browserClient) {
-    browserClient = await getTurnkeyClient().currentUserSession()
-  }
-  return browserClient
-}
+// export const getBrowserClient = async (): Promise<
+//   TurnkeyBrowserClient | undefined
+// > => {
+//   if (!browserClient) {
+//     browserClient = await getTurnkeyClient().currentUserSession()
+//   }
+//   return browserClient
+// }
 
-let iFrameStamper: IframeStamper | undefined = undefined
+// let iFrameStamper: IframeStamper | undefined = undefined
 
 // export const getIFrameClient = async (): Promise<
 //   TurnkeyIframeClient | undefined
@@ -81,22 +81,22 @@ let iFrameStamper: IframeStamper | undefined = undefined
 //   return iFrameClient
 // }
 
-export const getPassKeyClient = async (): Promise<TurnkeyPasskeyClient> => {
-  if (!passKeyClient) {
-    const { apiBaseUrl, organizationId, passkey } = turnkeyConfig
+// export const getPassKeyClient = async (): Promise<TurnkeyPasskeyClient> => {
+//   if (!passKeyClient) {
+//     const { apiBaseUrl, organizationId, passkey } = turnkeyConfig
 
-    const stamper = new WebauthnStamper({
-      rpId: passkey.rpId,
-    })
+//     const stamper = new WebauthnStamper({
+//       rpId: passkey.rpId,
+//     })
 
-    passKeyClient = new TurnkeyPasskeyClient({
-      stamper,
-      apiBaseUrl,
-      organizationId,
-    })
+//     passKeyClient = new TurnkeyPasskeyClient({
+//       stamper,
+//       apiBaseUrl,
+//       organizationId,
+//     })
 
-    console.log("setting passkey client", passkey.rpId)
-  }
+//     console.log("setting passkey client", passkey.rpId)
+//   }
 
-  return passKeyClient
-}
+//   return passKeyClient
+// }
