@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
+import { useWallets } from "@/providers/wallet-provider"
+import { useTurnkey } from "@turnkey/sdk-react"
 import {
   ArrowDownIcon,
   ArrowUpIcon,
@@ -10,50 +12,145 @@ import {
   Info,
 } from "lucide-react"
 import QRCode from "react-qr-code"
+import {
+  formatEther,
+  getAddress,
+  parseEther,
+  TransactionRequest,
+  WalletClient,
+} from "viem"
+import { sepolia } from "viem/chains"
 
+import { showTransactionToast } from "@/lib/toast"
+import { getPublicClient, getTurnkeyWalletClient } from "@/lib/web3"
+import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import TransferMenu from "./transfer-menu"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+import SendTransaction from "./send-transaction"
 import { ValueInput } from "./value-input"
 
 type TransferAction = "send" | "receive"
 
 export default function TransferDialog() {
+  const { state } = useWallets()
+  const { selectedAccount } = state
+  const { ethPrice } = useTokenPrice()
+  const { getActiveClient } = useTurnkey()
+
+  // Controls the dialog open/close state
   const [isOpen, setIsOpen] = useState(false)
+
+  // Controls the tab selection: send or receive
   const [selectedAction, setSelectedAction] = useState<TransferAction>("send")
-  const [amount, setAmount] = useState("")
-  const [fontSize, setFontSize] = useState(70)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const ethereumAddress = "0xbCdD2bBa5E2Cf199488Bd166b5Fdeee980Fd2498"
-  const ethToUsd = 2000 // Example exchange rate
+
+  // The amount of ETH to send
   const [ethAmount, setEthAmount] = useState("")
 
-  useEffect(() => {
-    if (inputRef.current) {
-      const length = inputRef.current.value.length
-      const newSize = Math.max(30, 70 - length * 2)
-      setFontSize(newSize)
-    }
-  }, [amount])
+  // Controls the current view: send, receive, or send transaction
+  const [currentView, setCurrentView] = useState<
+    "send" | "receive" | "sendTransaction"
+  >("send")
 
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, "")
-    setAmount(value)
-  }
+  // Controls the amount in USD
+  const [amountUSD, setAmountUSD] = useState("0")
+
+  // The recipient address to send to, defaults to the Turnkey HQ Faucet
+  const [recipientAddress, setRecipientAddress] = useState(
+    "0xE7F48E6dCfBeA43ff5CD1F1570f6543878cCF156"
+  )
+
+  const [transactionRequest, setTransactionRequest] =
+    useState<TransactionRequest | null>(null)
+
+  const [walletClient, setWalletClient] = useState<Awaited<
+    ReturnType<typeof getTurnkeyWalletClient>
+  > | null>(null)
+
+  useEffect(() => {
+    const initializeWalletClient = async () => {
+      if (!selectedAccount) return
+      const turnkeyClient = await getActiveClient()
+      if (!turnkeyClient) return
+
+      const client = await getTurnkeyWalletClient(
+        turnkeyClient,
+        selectedAccount.address
+      )
+      setWalletClient(client)
+    }
+
+    initializeWalletClient()
+  }, [selectedAccount, getActiveClient])
+
+  useEffect(() => {
+    const ethAmountParsed = parseFloat(ethAmount || "0")
+    console.log(ethAmountParsed)
+    if (!isNaN(ethAmountParsed) && ethPrice) {
+      const ethPriceParsed = parseFloat(ethPrice.toFixed(2))
+      console.log(ethPriceParsed)
+      setAmountUSD((ethAmountParsed * ethPriceParsed).toFixed(2))
+    }
+  }, [ethAmount, ethPrice])
 
   const handleSelect = (action: TransferAction) => {
     setSelectedAction(action)
     setIsOpen(true)
+  }
+
+  const handlePreviewSendTransaction = async () => {
+    if (!selectedAccount || !walletClient) return
+    // Prepare the transaction request to calculate the gas fees
+    const transaction = await walletClient.prepareTransactionRequest({
+      to: getAddress(recipientAddress),
+      value: parseEther(ethAmount),
+    })
+    console.log({ transaction })
+    setTransactionRequest(transaction)
+
+    setCurrentView("sendTransaction")
+  }
+
+  // @todo: This could fit nicely inside of the transaction provider
+  const handleSendTransaction = async (
+    transactionRequest: TransactionRequest
+  ) => {
+    if (!selectedAccount || !walletClient) return
+    try {
+      const publicClient = getPublicClient()
+      setIsOpen(false)
+      const hash = await walletClient.sendTransaction(transactionRequest)
+      const toastId = showTransactionToast({
+        hash,
+        title: "Sending transaction...",
+        description: "View your transaction on explorer",
+        type: "loading",
+      })
+      await publicClient.waitForTransactionReceipt({
+        hash,
+      })
+      showTransactionToast({
+        id: toastId,
+        hash,
+        title: "Transaction sent! 🎉",
+        description: `Transaction sent to ${recipientAddress}`,
+        type: "success",
+      })
+    } catch (error) {
+      console.error("Error sending transaction:", error)
+      showTransactionToast({
+        title: "Error sending transaction",
+        description: "Please try again",
+        type: "error",
+      })
+    }
+  }
+
+  const handleBackToSendTab = () => {
+    setCurrentView("send")
   }
 
   const SendTab = () => {
@@ -70,21 +167,6 @@ export default function TransferDialog() {
     return (
       <>
         <div className="relative mb-2 flex items-baseline text-7xl font-light">
-          {/* <span
-            ref={spanRef}
-            className="invisible absolute whitespace-pre"
-            style={{ fontSize: "4.5rem", lineHeight: 1 }}
-          >
-            {ethAmount || "0"}
-          </span> */}
-          {/* <Input
-            ref={inputRef}
-            type="text"
-            value={ethAmount}
-            onChange={(e) => setEthAmount(e.target.value)}
-            className="w-[1ch] max-w-full border-none bg-transparent p-0 text-7xl font-light focus-visible:ring-0 focus-visible:ring-offset-0"
-            style={{ fontSize: "4.5rem", lineHeight: 1, caretColor: "#0a84ff" }}
-          /> */}
           <ValueInput
             value={ethAmount}
             onValueChange={setEthAmount}
@@ -93,9 +175,7 @@ export default function TransferDialog() {
           />
         </div>
 
-        <div className="mb-6 text-lg  text-muted-foreground">
-          ${parseFloat(ethAmount || "0") * 1800}.00
-        </div>
+        <div className="mb-6 text-lg  text-muted-foreground">${amountUSD}</div>
 
         <div className="mb-4 flex items-center rounded-lg  p-4">
           <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#627eea]">
@@ -129,20 +209,32 @@ export default function TransferDialog() {
             <div className="text-sm ">Ethereum</div>
           </div>
           <div className="text-right">
-            <div className="font-semibold">0.0034949 ETH</div>
+            <div className="font-semibold">
+              {selectedAccount?.balance
+                ? formatEther(selectedAccount?.balance)
+                : "0"}{" "}
+              <span className="text-sm text-muted-foreground">ETH</span>
+            </div>
             <div className="text-sm ">Balance</div>
           </div>
-          <ChevronRight className="ml-2 " size={20} />
+          {/* TODO: Could add this back such that when clicked it displays list of wallet accounts to send from */}
+          {/* <ChevronRight className="ml-2 " size={20} /> */}
         </div>
 
         <div className="mb-6 flex items-center rounded-lg bg-muted  p-4">
           <Input
             placeholder="Enter recipient address"
+            value={recipientAddress}
+            onChange={(e) => setRecipientAddress(e.target.value)}
             className="flex-grow border-none bg-transparent  placeholder-[#8e8e93] focus-visible:ring-0 focus-visible:ring-offset-0"
           />
         </div>
 
-        <Button className="w-full   ">
+        <Button
+          disabled={!recipientAddress || !ethAmount}
+          className="w-full"
+          onClick={handlePreviewSendTransaction}
+        >
           Preview Send
           <ChevronRight className="ml-2" size={20} />
         </Button>
@@ -165,14 +257,14 @@ export default function TransferDialog() {
       <div className="mx-auto mb-4 w-8/12 rounded-lg p-4 dark:bg-white">
         <QRCode
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-          value={ethereumAddress}
+          value={selectedAccount?.address || ""}
         />
       </div>
 
       <div className="mb-4">
         <h3 className="mb-2">ETH address (Ethereum)</h3>
         <div className="flex items-center justify-between rounded-lg  p-4">
-          <div className="break-all text-sm">{ethereumAddress}</div>
+          <div className="break-all text-sm">{selectedAccount?.address}</div>
           <Button variant="ghost" className="text-[#0a84ff]">
             <Copy size={20} />
           </Button>
@@ -208,21 +300,36 @@ export default function TransferDialog() {
           Receive
         </Button>
       </div>
-      <DialogContent className=" p-4  sm:max-w-[425px]">
-        <Card className="w-full border-0  ">
+      <DialogContent className="p-4 sm:max-w-[425px]">
+        <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
+        <Card className="w-full border-0  shadow-none">
           <CardContent className="p-6">
-            <Tabs defaultValue={selectedAction} className="w-full">
-              <TabsList className="mb-6 grid w-full grid-cols-2 ">
-                <TabsTrigger value="send">Send</TabsTrigger>
-                <TabsTrigger value="receive">Receive</TabsTrigger>
-              </TabsList>
-              <TabsContent value="send">
-                <SendTab />
-              </TabsContent>
-              <TabsContent value="receive">
-                <ReceiveTab />
-              </TabsContent>
-            </Tabs>
+            {currentView === "send" && (
+              <Tabs defaultValue={selectedAction} className="w-full">
+                <TabsList className="mb-6 grid w-full grid-cols-2 ">
+                  <TabsTrigger value="send">Send</TabsTrigger>
+                  <TabsTrigger value="receive">Receive</TabsTrigger>
+                </TabsList>
+                <TabsContent value="send">
+                  <SendTab />
+                </TabsContent>
+                <TabsContent value="receive">
+                  <ReceiveTab />
+                </TabsContent>
+              </Tabs>
+            )}
+            {currentView === "sendTransaction" &&
+              transactionRequest &&
+              ethPrice && (
+                <SendTransaction
+                  transaction={transactionRequest}
+                  amountUSD={amountUSD}
+                  ethPrice={ethPrice}
+                  network="Ethereum"
+                  onSend={handleSendTransaction}
+                  onBack={handleBackToSendTab}
+                />
+              )}
           </CardContent>
         </Card>
       </DialogContent>

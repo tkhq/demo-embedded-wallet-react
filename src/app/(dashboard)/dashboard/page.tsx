@@ -1,6 +1,7 @@
-import { WrappedActivity } from "@/components/activity"
-import Assets, { WrappedAssets } from "@/components/assets"
-import TransferDialog from "@/components/transfer-dialog"
+import { TransactionsProvider } from "@/providers/transactions-provider"
+
+import Activity from "@/components/activity"
+import Assets from "@/components/assets"
 import WalletCard from "@/components/wallet-card"
 
 export default function Dashboard() {
@@ -11,10 +12,12 @@ export default function Dashboard() {
         <WalletCard />
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <WrappedAssets />
+            <Assets />
           </div>
           <div>
-            <WrappedActivity />
+            <TransactionsProvider>
+              <Activity />
+            </TransactionsProvider>
           </div>
         </div>
       </div>

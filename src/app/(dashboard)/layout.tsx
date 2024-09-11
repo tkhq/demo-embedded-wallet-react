@@ -1,3 +1,6 @@
+import { WalletsProvider } from "@/providers/wallet-provider"
+
+import { Toaster } from "@/components/ui/sonner"
 import NavMenu from "@/components/nav-menu"
 
 export default function DashboardLayout({
@@ -6,10 +9,12 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    // <main className="grid h-screen text-center sm:grid-cols-[200px_1fr] xl:grid-cols-[270px_1fr]">
     <main className=" h-screen dark:bg-neutral-950/80">
-      <NavMenu />
-      <div className="">{children}</div>
+      <WalletsProvider>
+        <NavMenu />
+        <div className="">{children}</div>
+      </WalletsProvider>
+      <Toaster />
     </main>
   )
 }

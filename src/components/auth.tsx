@@ -7,6 +7,7 @@ import { useAuth } from "@/providers/auth-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email } from "@/types/turnkey"
+import { getTransactions } from "@/lib/web3"
 import { useUser } from "@/hooks/use-user"
 
 import { Icons } from "./icons"
@@ -49,7 +50,9 @@ export default function Auth() {
     await initEmailLogin(email as Email)
     setLoadingAction(null)
   }
-
+  // getTransactions("0x03dB66341093b9a0d421ACef6593d9119F05b3f2").then(
+  //   console.log
+  // )
   return (
     <>
       <Card className="mx-auto w-2/3 max-w-lg">

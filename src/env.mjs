@@ -8,6 +8,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().optional(),
     NEXT_PUBLIC_BASE_URL: z.string().min(1),
     NEXT_PUBLIC_ORGANIZATION_ID: z.string().min(1),
+    NEXT_PUBLIC_ALCHEMY_API_KEY: z.string().min(1),
   },
   server: {
     NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
@@ -16,7 +17,7 @@ export const env = createEnv({
     TURNKEY_API_PRIVATE_KEY: z.string().min(1),
     NEXT_PUBLIC_BASE_URL: z.string().min(1),
     NEXT_PUBLIC_ORGANIZATION_ID: z.string().min(1),
-    ALCHEMY_API_KEY: z.string().min(1),
+    NEXT_PUBLIC_ALCHEMY_API_KEY: z.string().min(1),
     COINGECKO_API_KEY: z.string().min(1),
   },
   runtimeEnv: {
@@ -26,7 +27,7 @@ export const env = createEnv({
     TURNKEY_API_PUBLIC_KEY: process.env.TURNKEY_API_PUBLIC_KEY,
     TURNKEY_API_PRIVATE_KEY: process.env.TURNKEY_API_PRIVATE_KEY,
     NEXT_PUBLIC_ORGANIZATION_ID: process.env.NEXT_PUBLIC_ORGANIZATION_ID,
-    ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
+    NEXT_PUBLIC_ALCHEMY_API_KEY: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     COINGECKO_API_KEY: process.env.COINGECKO_API_KEY,
   },
   extends: [vercel()],

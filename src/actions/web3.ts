@@ -5,9 +5,10 @@ import { Address, createPublicClient, http } from "viem"
 import { sepolia } from "viem/chains"
 
 import { env } from "@/env.mjs"
+import { turnkeyConfig } from "@/config/turnkey"
 
 const settings = {
-  apiKey: env.ALCHEMY_API_KEY,
+  apiKey: env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   network: Network.ETH_SEPOLIA,
 }
 
@@ -20,22 +21,35 @@ export const getTokenBalance = async (address: Address) => {
 
 const publicClient = createPublicClient({
   chain: sepolia,
-  transport: http(),
+  transport: http(turnkeyConfig.rpcUrl),
 })
 
 export const getBalance = async (address: Address) => {
-  const balance = await publicClient.getBalance({ address })
-  return balance
+  let response = await alchemy.core.getBalance(address, "latest")
+  const balanceBigInt = BigInt(response.toString())
+  return balanceBigInt
 }
 
-export const getTokenPrice = async (token: string) => {
+type TokenPriceResponse<T extends string> = {
+  [key in T]: {
+    usd: number
+  }
+}
+
+export const getTokenPrice = async <T extends string>(
+  token: T
+): Promise<number> => {
+  console.log("fetching token price", token)
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`
-  const tokenResponse = await fetch(url, {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       accept: "application/json",
       "x-cg-demo-api-key": env.COINGECKO_API_KEY,
     },
   })
-  return tokenResponse
+  const data: TokenPriceResponse<T> = await response.json()
+
+  console.log("token response", data[token].usd)
+  return data[token].usd
 }

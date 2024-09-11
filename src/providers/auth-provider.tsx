@@ -199,7 +199,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             challenge: encodedChallenge,
             attestation,
           })
-
+          console.log("createUserSubOrg", res)
           if (res.subOrganizationId) {
             router.push("/dashboard")
           }

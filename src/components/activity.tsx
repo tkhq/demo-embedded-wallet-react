@@ -1,7 +1,14 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useTransactions } from "@/providers/transactions-provider"
+import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
+import { formatEther } from "viem"
 
+import type { Transaction } from "@/types/web3"
+import { getTransactions, watchPendingTransactions } from "@/lib/web3"
+import { useTokenPrice } from "@/hooks/use-token-price"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -12,97 +19,85 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
-// Define the type for a single activity
-type Activity = {
-  id: string
-  status: "Received" | "Sent"
-  date: string
-  address: string
-  amount: string
-  valueUSD: number
-}
+import { ScrollArea } from "./ui/scroll-area"
 
-// Define the props type for the Activity component
-type ActivityProps = {
-  activities: Activity[]
-}
+export default function Activity() {
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const { transactions: allTransactions } = useTransactions()
+  const { ethPrice } = useTokenPrice()
+  const { state } = useWallets()
+  const { selectedAccount } = state
 
-export default function Activity({ activities }: ActivityProps) {
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (selectedAccount?.address) {
+        const transactions = await getTransactions(selectedAccount?.address)
+        console.log("transactions", transactions)
+        setTransactions(transactions)
+        watchPendingTransactions(
+          selectedAccount?.address,
+          (tx: Transaction) => {
+            console.log("pending tx", tx)
+            // setTransactions((prev) => [...prev, tx])
+          }
+        )
+      }
+    }
+    fetchTransactions()
+  }, [selectedAccount?.address])
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Status</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Address</TableHead>
-              <TableHead>Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {activities.map((activity) => (
-              <TableRow key={activity.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    {activity.status === "Received" ? (
-                      <ArrowDownIcon className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <ArrowUpIcon className="h-4 w-4 text-red-500" />
-                    )}
-                    {activity.status}
-                  </div>
-                </TableCell>
-                <TableCell>{activity.date}</TableCell>
-                <TableCell className="font-mono text-xs">
-                  {activity.address}
-                </TableCell>
-                <TableCell>
-                  <div>{activity.amount}</div>
-                  <div className="text-xs text-muted-foreground">
-                    ${activity.valueUSD.toFixed(2)}
-                  </div>
-                </TableCell>
+        <ScrollArea className=" h-[450px] w-full rounded-md">
+          <Table>
+            <TableHeader className="sticky top-0 bg-card">
+              <TableRow>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>From</TableHead>
+                <TableHead>Amount</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {transactions.map((transaction) => (
+                <TableRow key={transaction.hash}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {transaction.status === "received" ? (
+                        <ArrowDownIcon className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <ArrowUpIcon className="h-4 w-4 text-red-500" />
+                      )}
+                      {transaction.status}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(transaction.timestamp).toLocaleString()}
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {transaction.from.slice(0, 6)}...
+                    {transaction.from.slice(-4)}
+                  </TableCell>
+                  <TableCell>
+                    <div>{transaction.value || 0} ETH</div>
+                    <div className="text-xs text-muted-foreground">
+                      $
+                      {transaction.value
+                        ? (transaction.value * (ethPrice ?? 0)).toFixed(2)
+                        : 0}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </CardContent>
     </Card>
   )
-}
-
-// Example array of activities to be passed as props
-const exampleActivities: Activity[] = [
-  {
-    id: "1",
-    status: "Received",
-    date: "August 14, 2024 3:08 PM",
-    address: "From: 0xe7f4...f156",
-    amount: "0.005 ETH",
-    valueUSD: 13.15,
-  },
-  {
-    id: "2",
-    status: "Sent",
-    date: "August 13, 2024 1:45 PM",
-    address: "To: 0x1a2b...3c4d",
-    amount: "0.01 ETH",
-    valueUSD: 26.3,
-  },
-  {
-    id: "3",
-    status: "Received",
-    date: "August 12, 2024 9:30 AM",
-    address: "From: 0x5e6f...7g8h",
-    amount: "0.02 ETH",
-    valueUSD: 52.6,
-  },
-]
-
-export function WrappedActivity() {
-  return <Activity activities={exampleActivities} />
 }

@@ -11,10 +11,7 @@ export const useUser = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      console.log("fetching user", turnkey)
       if (turnkey) {
-        console.log("fetching user")
-
         const currentUser = await turnkey.getCurrentUser()
 
         if (currentUser) {

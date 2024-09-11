@@ -1,25 +1,49 @@
 "use client"
 
-import { useEffect } from "react"
-import { CopyIcon } from "lucide-react"
+import { useEffect, useState } from "react"
+import { useWallets } from "@/providers/wallet-provider"
+import { CopyIcon, HandCoins } from "lucide-react"
+import { toast } from "sonner"
+import { formatEther } from "viem"
 
 import { truncateAddress } from "@/lib/utils"
-import { useWallets } from "@/hooks/use-wallets"
+import { fundWallet } from "@/lib/web3"
+import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 import { Skeleton } from "./ui/skeleton"
 
 export default function WalletCard() {
-  const { selectedWallet, selectedAccount } = useWallets()
-  const walletAddress = "0xCE27...8aaD"
-  const usdAmount = 13.15
-  const ethAmount = 0.005
+  const { ethPrice } = useTokenPrice()
+  const { state } = useWallets()
+  const { selectedWallet, selectedAccount } = state
+  const [usdAmount, setUsdAmount] = useState<number | undefined>(undefined)
+
+  const handleFundWallet = async () => {
+    if (!selectedAccount?.address) return
+    await fundWallet(selectedAccount?.address, "0.005")
+  }
+
+  const handleCopyAddress = () => {
+    if (selectedAccount?.address) {
+      navigator.clipboard.writeText(selectedAccount.address)
+      toast.success("Address copied to clipboard")
+    }
+  }
 
   useEffect(() => {
-    console.log("selectedWallet", selectedWallet)
-    console.log("selectedAccount", selectedAccount)
-  }, [selectedWallet, selectedAccount])
+    if (ethPrice && selectedAccount?.balance) {
+      const balanceInEther = formatEther(selectedAccount?.balance) // Convert wei to ether
+      setUsdAmount(ethPrice * Number(balanceInEther))
+    }
+  }, [ethPrice, selectedAccount?.balance])
 
   return (
     <Card className="w-[300px]  ">
@@ -29,7 +53,12 @@ export default function WalletCard() {
             <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
           )}
         </CardTitle>
-        <Button variant="ghost" size="icon" className="h-4 w-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-4 w-4"
+          onClick={handleCopyAddress} // Add onClick handler
+        >
           <CopyIcon className="h-4 w-4" />
           <span className="sr-only">Copy wallet address</span>
         </Button>
@@ -43,12 +72,23 @@ export default function WalletCard() {
           )}
         </div>
         <div className="text-4xl font-bold">
-          ${usdAmount.toFixed(2)}
+          ${usdAmount?.toFixed(2) || "0.00"}
           <span className="text-sm text-muted-foreground">USD</span>
         </div>
         <div className="text-sm text-muted-foreground">
-          {ethAmount.toFixed(3)} ETH
+          {selectedAccount?.balance
+            ? Number(formatEther(selectedAccount?.balance)).toFixed(8)
+            : "0"}{" "}
+          ETH
         </div>
+        <Button
+          onClick={handleFundWallet}
+          variant="link"
+          className="mt-2 h-min cursor-pointer p-0 text-sm text-muted-foreground"
+        >
+          <HandCoins className="mr-2 h-4 w-4" />
+          Fund wallet
+        </Button>
       </CardContent>
     </Card>
   )

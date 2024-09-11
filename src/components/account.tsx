@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
+import { useWallets } from "@/providers/wallet-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
 import {
   ChevronDownIcon,
@@ -15,7 +16,6 @@ import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 
 import { truncateAddress } from "@/lib/utils"
 import { useUser } from "@/hooks/use-user"
-import { useWallets } from "@/hooks/use-wallets"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,15 +33,10 @@ import { Skeleton } from "./ui/skeleton"
 export default function Account() {
   const { logout } = useAuth()
   const { user } = useUser()
-  const {
-    newWallet,
-    wallets,
-    selectedWallet,
-    setSelectedWallet,
-    selectedAccount,
-    setSelectedAccount,
-    newWalletAccount,
-  } = useWallets()
+  const { state, newWallet, newWalletAccount, selectWallet, selectAccount } =
+    useWallets()
+  const { selectedWallet, selectedAccount, wallets } = state
+
   const [isOpen, setIsOpen] = useState(false)
   const [isNewWalletMode, setIsNewWalletMode] = useState(false)
   const [newWalletName, setNewWalletName] = useState("")
@@ -73,10 +68,6 @@ export default function Account() {
   const handleLogout = () => {
     logout()
   }
-
-  useEffect(() => {
-    console.log(user, selectedWallet, selectedAccount)
-  }, [user, selectedWallet, selectedAccount])
 
   useEffect(() => {
     setTimeout(() => {
@@ -157,7 +148,7 @@ export default function Account() {
           <DropdownMenuCheckboxItem
             key={wallet.walletId}
             checked={selectedWallet?.walletId === wallet.walletId}
-            onCheckedChange={() => setSelectedWallet(wallet)}
+            onCheckedChange={() => selectWallet(wallet)}
             className="flex items-center py-2"
           >
             {wallet.walletName}
@@ -199,7 +190,7 @@ export default function Account() {
           <DropdownMenuCheckboxItem
             key={account.address}
             checked={selectedAccount?.address === account.address}
-            onCheckedChange={() => setSelectedAccount(account)}
+            onCheckedChange={() => selectAccount(account)}
             className="flex items-center py-2"
           >
             {account.address ? truncateAddress(account.address) : ""}

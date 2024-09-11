@@ -1,7 +1,11 @@
 "use server"
 
 import { generateP256KeyPair } from "@turnkey/crypto"
-import { ApiKeyStamper, TurnkeyServerClient } from "@turnkey/sdk-server"
+import {
+  ApiKeyStamper,
+  DEFAULT_ETHEREUM_ACCOUNTS,
+  TurnkeyServerClient,
+} from "@turnkey/sdk-server"
 
 import { env } from "@/env.mjs"
 import { Attestation, Email } from "@/types/turnkey"
@@ -76,8 +80,6 @@ export const getUser = async (userId: string, subOrgId: string) => {
   })
 }
 
-// @todo: Add overloads for creating suborgs with wallets, vs passkeys
-
 export const createUserSubOrg = async ({
   email,
   challenge,
@@ -101,7 +103,6 @@ export const createUserSubOrg = async ({
   const subOrganizationName = `Sub Org - ${email}`
   const userName = email.split("@")?.[0] || email
 
-  // @todo: Add a wallet to the sub org
   const subOrg = await client.createSubOrganization({
     organizationId: turnkeyConfig.organizationId,
     subOrganizationName,
@@ -115,6 +116,10 @@ export const createUserSubOrg = async ({
       },
     ],
     rootQuorumThreshold: 1,
+    wallet: {
+      walletName: "Default Wallet",
+      accounts: DEFAULT_ETHEREUM_ACCOUNTS,
+    },
   })
 
   return subOrg
@@ -130,10 +135,9 @@ export const initEmailAuth = async ({
   email: Email
   targetPublicKey: string
 }) => {
-  console.log("initEmailAuth", email, targetPublicKey)
   const organizationId = await getSubOrgIdByEmail(email as Email)
   const magicLinkTemplate = getMagicLinkTemplate("auth", email, "email")
-  console.log("magicLinkTemplate", magicLinkTemplate)
+
   if (organizationId?.length) {
     const authResponse = await client.emailAuth({
       email,
@@ -144,7 +148,6 @@ export const initEmailAuth = async ({
       },
     })
 
-    console.log("authResponse", authResponse)
     return authResponse
   }
 }
