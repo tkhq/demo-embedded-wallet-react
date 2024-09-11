@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { CopyIcon, HandCoins } from "lucide-react"
+import { CopyIcon, HandCoins, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { formatEther } from "viem"
 
@@ -12,7 +12,14 @@ import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+import ExportWalletDialog from "./export-wallet"
 import { Skeleton } from "./ui/skeleton"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip"
 
 export default function WalletCard() {
   const { ethPrice } = useTokenPrice()
@@ -32,8 +39,10 @@ export default function WalletCard() {
     }
   }
 
+  const handleExportWallet = () => {}
+
   useEffect(() => {
-    if (ethPrice && selectedAccount?.balance) {
+    if (ethPrice && selectedAccount?.balance !== undefined) {
       const balanceInEther = formatEther(selectedAccount?.balance)
       setUsdAmount(ethPrice * Number(balanceInEther))
     }
@@ -47,20 +56,25 @@ export default function WalletCard() {
             <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
           )}
         </CardTitle>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-4 w-4"
-          onClick={handleCopyAddress}
-        >
-          <CopyIcon className="h-4 w-4" />
-          <span className="sr-only">Copy wallet address</span>
-        </Button>
+
+        <ExportWalletDialog>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-4 w-4"
+            onClick={handleExportWallet}
+          >
+            <Upload className="h-4 w-4" />{" "}
+          </Button>
+        </ExportWalletDialog>
       </CardHeader>
       <CardContent>
         <div className="text-xs ">
           {selectedAccount?.address ? (
-            truncateAddress(selectedAccount?.address)
+            <>
+              {truncateAddress(selectedAccount?.address)}
+              <CopyIcon className="h-4 w-4" />
+            </>
           ) : (
             <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
           )}

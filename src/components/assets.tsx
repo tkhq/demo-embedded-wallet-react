@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { Icons } from "./icons"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 
 export default function Assets() {
@@ -40,9 +41,7 @@ export default function Assets() {
             <TableRow>
               <TableCell className="font-medium">
                 <div className="flex items-center space-x-2">
-                  <Avatar className="h-full w-auto bg-muted  p-4">
-                    <AvatarFallback className="bg-transparent text-base font-semibold"></AvatarFallback>
-                  </Avatar>
+                  {/* <Icons.ethereum className="h-2 w-2" /> */}
                   <span>Ethereum (Sepolia)</span>
                 </div>
               </TableCell>

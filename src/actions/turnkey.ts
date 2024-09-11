@@ -121,7 +121,12 @@ export const createUserSubOrg = async ({
     },
   })
 
-  return subOrg
+  const session = await client.createReadOnlySession({
+    organizationId: subOrg.subOrganizationId,
+    userId: subOrg.rootUserIds?.[0],
+  })
+
+  return { subOrg, session }
 }
 
 const getMagicLinkTemplate = (action: string, email: string, method: string) =>

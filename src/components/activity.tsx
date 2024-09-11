@@ -6,6 +6,7 @@ import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
 
 import type { Transaction } from "@/types/web3"
+import { cn } from "@/lib/utils"
 import { getTransactions, watchPendingTransactions } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -51,7 +52,12 @@ export default function Activity() {
         <CardTitle>Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className=" h-[450px] w-full rounded-md">
+        <ScrollArea
+          className={cn(
+            " w-full rounded-md",
+            transactions.length > 0 ? "h-[450px]" : ""
+          )}
+        >
           <Table>
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
@@ -63,36 +69,44 @@ export default function Activity() {
             </TableHeader>
 
             <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.hash}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {transaction.status === "received" ? (
-                        <ArrowDownIcon className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <ArrowUpIcon className="h-4 w-4 text-red-500" />
-                      )}
-                      {transaction.status}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(transaction.timestamp).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">
-                    {transaction.from.slice(0, 6)}...
-                    {transaction.from.slice(-4)}
-                  </TableCell>
-                  <TableCell>
-                    <div>{transaction.value || 0} ETH</div>
-                    <div className="text-xs text-muted-foreground">
-                      $
-                      {transaction.value
-                        ? (transaction.value * (ethPrice ?? 0)).toFixed(2)
-                        : 0}
-                    </div>
+              {transactions.length > 0 ? (
+                transactions.map((transaction) => (
+                  <TableRow key={transaction.hash}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        {transaction.status === "received" ? (
+                          <ArrowDownIcon className="h-4 w-4 text-green-500" />
+                        ) : (
+                          <ArrowUpIcon className="h-4 w-4 text-red-500" />
+                        )}
+                        {transaction.status}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {new Date(transaction.timestamp).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {transaction.from.slice(0, 6)}...
+                      {transaction.from.slice(-4)}
+                    </TableCell>
+                    <TableCell>
+                      <div>{transaction.value || 0} ETH</div>
+                      <div className="text-xs text-muted-foreground">
+                        $
+                        {transaction.value
+                          ? (transaction.value * (ethPrice ?? 0)).toFixed(2)
+                          : 0}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell className="text-center" colSpan={4}>
+                    No transactions found
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </ScrollArea>

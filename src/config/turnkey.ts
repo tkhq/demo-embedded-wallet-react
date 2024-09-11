@@ -9,6 +9,14 @@ export const turnkeyConfig = {
     url: "https://auth.turnkey.com",
     elementId: "turnkey-auth-iframe-element-id",
     containerId: "turnkey-auth-iframe-container-id",
+    auth: {
+      url: "https://auth.turnkey.com",
+      containerId: "turnkey-auth-iframe-container-id",
+    },
+    export: {
+      url: "https://export.turnkey.com",
+      containerId: "turnkey-export-iframe-container-id",
+    },
   },
   passkey: {
     rpId: env.NEXT_PUBLIC_RP_ID || "localhost",

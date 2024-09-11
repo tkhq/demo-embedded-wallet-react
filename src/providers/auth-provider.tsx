@@ -188,13 +188,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Create a new sub organization for the user
         if (encodedChallenge && attestation) {
-          const res = await createUserSubOrg({
+          const { session } = await createUserSubOrg({
             email: email as Email,
             challenge: encodedChallenge,
             attestation,
           })
-          console.log("createUserSubOrg", res)
-          if (res.subOrganizationId) {
+          if (session) {
+            const org = {
+              organizationId: session.organizationId,
+              organizationName: session.organizationName,
+            }
+            const currentUser: User = {
+              userId: session.userId,
+              username: session.username,
+              organization: org,
+              readOnlySession: {
+                session: session.session,
+                sessionExpiry: Number(session.sessionExpiry),
+              },
+            }
+
+            // @todo: replace with storage APIs from @turnkey/sdk-browser once available
+            localStorage.setItem(
+              "@turnkey/current_user",
+              JSON.stringify(currentUser)
+            )
+            console.log("currentUser", currentUser)
             router.push("/dashboard")
           }
         }
