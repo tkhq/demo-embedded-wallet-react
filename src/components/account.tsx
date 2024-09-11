@@ -1,10 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
 import { useWallets } from "@/providers/wallet-provider"
-import { useTurnkey } from "@turnkey/sdk-react"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
@@ -12,7 +10,6 @@ import {
   PlusCircleIcon,
   SettingsIcon,
 } from "lucide-react"
-import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 
 import { truncateAddress } from "@/lib/utils"
 import { useUser } from "@/hooks/use-user"
@@ -74,20 +71,6 @@ export default function Account() {
       setIsNewWalletMode(false)
     }, 100)
   }, [isOpen])
-
-  // Check if the user is undefined and redirect to "/"
-  // useEffect(() => {
-  //   const checkUser = async () => {
-  //     const user = await turnkey?.getCurrentUser()
-  //     console.log("user", user)
-  //     if (!user) {
-  //       router.push("/")
-  //     }
-  //   }
-  //   if (turnkey) {
-  //     checkUser()
-  //   }
-  // }, [turnkey])
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>

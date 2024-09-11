@@ -9,8 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import { DialogTrigger } from "./ui/dialog"
-
 type TransferAction = "send" | "receive"
 
 interface TransferMenuProps {

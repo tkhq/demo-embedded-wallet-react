@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
-import { formatEther } from "viem"
 
 import type { Transaction } from "@/types/web3"
 import { getTransactions, watchPendingTransactions } from "@/lib/web3"

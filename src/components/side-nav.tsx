@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BookText, Home, Lock, LogOut, RefreshCw } from "lucide-react"
+import { Home, Lock, LogOut } from "lucide-react"
 
 import { ActiveLink } from "@/components/ui/active-link"
 

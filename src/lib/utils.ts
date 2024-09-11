@@ -14,7 +14,6 @@ export const truncateAddress = (
 
 export const getRpId = (url: string) => {
   try {
-    // Create a URL object to parse the URL
     const parsedUrl = new URL(url)
     return parsedUrl.hostname
   } catch (error) {

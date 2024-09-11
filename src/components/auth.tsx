@@ -1,13 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email } from "@/types/turnkey"
-import { getTransactions } from "@/lib/web3"
 import { useUser } from "@/hooks/use-user"
 
 import { Icons } from "./icons"

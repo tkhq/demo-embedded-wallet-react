@@ -40,15 +40,6 @@ export default function SendTransaction({
           <ArrowLeft className="h-6 w-6" />
         </Button>
       </div>
-      {/* 
-      <div className="mb-4 flex items-center justify-center">
-        <div className="mr-2 rounded-full bg-blue-500 p-3">
-          <DollarSign className="h-6 w-6" />
-        </div>
-        <div className="rounded-full bg-gray-800 p-3">
-          <span className="font-bold">C</span>
-        </div>
-      </div> */}
 
       <h1 className="mb-1 text-center text-2xl font-bold">
         Send ${amountUSD} in ETH

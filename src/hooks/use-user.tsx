@@ -30,26 +30,6 @@ export const useUser = () => {
         } else {
           router.push("/")
         }
-
-        // console.log({ currentUser })
-        // const userSession = await turnkey.currentUserSession()
-
-        // let userData: User = currentUser
-        // if (currentUser?.userId && currentUser?.organization?.organizationId) {
-        //   const { user } =
-        //     (await userSession?.getUser({
-        //       organizationId: currentUser?.organization?.organizationId,
-        //       userId: currentUser?.userId,
-        //     })) || {}
-        //   userData = { ...currentUser, email: user?.userEmail as Email }
-        //   console.log({ userData })
-        // }
-
-        // if (userData) {
-        //   setUser(userData)
-        // } else {
-        //   router.push("/")
-        // }
       }
     }
     fetchUser()

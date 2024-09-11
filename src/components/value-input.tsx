@@ -24,7 +24,7 @@ export const ValueInput: React.FC<ValueInputProps> = ({
   label = "",
 }) => {
   const [inputWidth, setInputWidth] = useState(20)
-  const [fontSize, setFontSize] = useState(1) // New state for scale
+  const [fontSize, setFontSize] = useState(1)
   const spanRef = useRef<HTMLSpanElement>(null)
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
@@ -51,7 +51,7 @@ export const ValueInput: React.FC<ValueInputProps> = ({
 
       setInputWidth(newWidth)
       const scale = scaleFactor(newWidth)
-      setFontSize(scale) // Set scale instead of font size
+      setFontSize(scale)
     }
   }, [value])
 

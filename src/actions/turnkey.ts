@@ -1,6 +1,5 @@
 "use server"
 
-import { generateP256KeyPair } from "@turnkey/crypto"
 import {
   ApiKeyStamper,
   DEFAULT_ETHEREUM_ACCOUNTS,

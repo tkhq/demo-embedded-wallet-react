@@ -19,11 +19,6 @@ export const getTokenBalance = async (address: Address) => {
   return tokenBalances
 }
 
-const publicClient = createPublicClient({
-  chain: sepolia,
-  transport: http(turnkeyConfig.rpcUrl),
-})
-
 export const getBalance = async (address: Address) => {
   let response = await alchemy.core.getBalance(address, "latest")
   const balanceBigInt = BigInt(response.toString())

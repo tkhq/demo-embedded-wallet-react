@@ -3,23 +3,9 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useWallets } from "@/providers/wallet-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ChevronDown,
-  ChevronRight,
-  Copy,
-  Info,
-} from "lucide-react"
+import { ChevronDown, ChevronRight, Copy } from "lucide-react"
 import QRCode from "react-qr-code"
-import {
-  formatEther,
-  getAddress,
-  parseEther,
-  TransactionRequest,
-  WalletClient,
-} from "viem"
-import { sepolia } from "viem/chains"
+import { formatEther, getAddress, parseEther, TransactionRequest } from "viem"
 
 import { showTransactionToast } from "@/lib/toast"
 import { getPublicClient, getTurnkeyWalletClient } from "@/lib/web3"
@@ -88,10 +74,10 @@ export default function TransferDialog() {
 
   useEffect(() => {
     const ethAmountParsed = parseFloat(ethAmount || "0")
-    console.log(ethAmountParsed)
+
     if (!isNaN(ethAmountParsed) && ethPrice) {
       const ethPriceParsed = parseFloat(ethPrice.toFixed(2))
-      console.log(ethPriceParsed)
+
       setAmountUSD((ethAmountParsed * ethPriceParsed).toFixed(2))
     }
   }, [ethAmount, ethPrice])

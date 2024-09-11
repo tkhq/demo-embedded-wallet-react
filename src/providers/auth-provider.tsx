@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useReducer,
-} from "react"
+import { createContext, ReactNode, useContext, useReducer } from "react"
 import { useRouter } from "next/navigation"
 import {
   createUserSubOrg,
@@ -232,5 +226,4 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   )
 }
 
-// Custom hook to use the AuthContext
 export const useAuth = () => useContext(AuthContext)

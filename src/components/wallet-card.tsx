@@ -10,13 +10,7 @@ import { truncateAddress } from "@/lib/utils"
 import { fundWallet } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import { Skeleton } from "./ui/skeleton"
 
@@ -40,7 +34,7 @@ export default function WalletCard() {
 
   useEffect(() => {
     if (ethPrice && selectedAccount?.balance) {
-      const balanceInEther = formatEther(selectedAccount?.balance) // Convert wei to ether
+      const balanceInEther = formatEther(selectedAccount?.balance)
       setUsdAmount(ethPrice * Number(balanceInEther))
     }
   }, [ethPrice, selectedAccount?.balance])
@@ -57,7 +51,7 @@ export default function WalletCard() {
           variant="ghost"
           size="icon"
           className="h-4 w-4"
-          onClick={handleCopyAddress} // Add onClick handler
+          onClick={handleCopyAddress}
         >
           <CopyIcon className="h-4 w-4" />
           <span className="sr-only">Copy wallet address</span>

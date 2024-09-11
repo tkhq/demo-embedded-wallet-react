@@ -17,20 +17,6 @@ import {
 
 import { Avatar, AvatarFallback } from "./ui/avatar"
 
-type Asset = {
-  id: string
-  name: string
-  network: string
-  logo: string
-  address: string
-  amount: number
-  valueUSD: number
-}
-
-type AssetsProps = {
-  assets: Asset[]
-}
-
 export default function Assets() {
   const { state } = useWallets()
   const { ethPrice } = useTokenPrice()

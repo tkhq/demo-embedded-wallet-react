@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useReducer } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { Address, fromHex, toHex } from "viem"
+import { Address } from "viem"
 
 import { Transaction } from "@/types/web3"
 import { getTransactions } from "@/lib/web3"
