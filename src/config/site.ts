@@ -2,8 +2,8 @@ import { SiteConfig } from "@/types"
 
 import { env } from "@/env.mjs"
 
-const baseUrl = env.NEXT_PUBLIC_VERCEL_URL
-  ? `https://${env.NEXT_PUBLIC_VERCEL_URL}`
+const baseUrl = env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL}`
   : "http://localhost:3000"
 
 export const siteConfig: SiteConfig = {

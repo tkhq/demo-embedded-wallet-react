@@ -5,7 +5,7 @@ import { z } from "zod"
 export const env = createEnv({
   client: {
     NEXT_PUBLIC_RP_ID: z.string().optional(),
-    NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
+    NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     NEXT_PUBLIC_APP_URL: z.string().optional(),
     NEXT_PUBLIC_BASE_URL: z.string().min(1),
     NEXT_PUBLIC_ORGANIZATION_ID: z.string().min(1),
@@ -13,7 +13,7 @@ export const env = createEnv({
   },
   server: {
     NEXT_PUBLIC_RP_ID: z.string().optional(),
-    NEXT_PUBLIC_VERCEL_URL: z.string().optional(),
+    NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL: z.string().optional(),
     NEXT_PUBLIC_APP_URL: z.string().optional(),
     TURNKEY_API_PUBLIC_KEY: z.string().min(1),
     TURNKEY_API_PRIVATE_KEY: z.string().min(1),
@@ -24,7 +24,8 @@ export const env = createEnv({
   },
   runtimeEnv: {
     NEXT_PUBLIC_RP_ID: process.env.NEXT_PUBLIC_RP_ID,
-    NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL,
+    NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL:
+      process.env.NEXT_PUBLIC_VERCEL_URL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     TURNKEY_API_PUBLIC_KEY: process.env.TURNKEY_API_PUBLIC_KEY,
