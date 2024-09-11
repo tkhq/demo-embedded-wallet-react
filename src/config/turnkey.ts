@@ -1,7 +1,4 @@
 import { env } from "@/env.mjs"
-import { getRpId } from "@/lib/utils"
-
-import { siteConfig } from "./site"
 
 const { NEXT_PUBLIC_ORGANIZATION_ID, NEXT_PUBLIC_BASE_URL } = env
 
@@ -14,7 +11,7 @@ export const turnkeyConfig = {
     containerId: "turnkey-auth-iframe-container-id",
   },
   passkey: {
-    rpId: getRpId(siteConfig.url.base) || "localhost",
+    rpId: env.NEXT_PUBLIC_RP_ID || "localhost",
   },
   rpcUrl: `https://eth-sepolia.g.alchemy.com/v2/${env.NEXT_PUBLIC_ALCHEMY_API_KEY}`,
 }
