@@ -9,7 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <main className=" h-screen dark:bg-neutral-950/80">
+    <main className=" h-screen bg-muted/40 dark:bg-neutral-950/80">
       <WalletsProvider>
         <NavMenu />
         <div className="">{children}</div>

@@ -51,7 +51,9 @@ export default function Assets() {
               </TableCell>
               <TableCell>
                 {selectedAccount?.balance &&
-                  Number(formatEther(selectedAccount?.balance)).toFixed(6)}
+                  parseFloat(
+                    Number(formatEther(selectedAccount?.balance)).toFixed(8)
+                  ).toString()}
               </TableCell>
               <TableCell>
                 $

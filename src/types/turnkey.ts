@@ -23,3 +23,6 @@ export type Wallet =
 export type User = Awaited<ReturnType<Turnkey["getCurrentUser"]>> & {
   email?: Email
 }
+
+export type Authenticator =
+  TurnkeyApiTypes["v1GetAuthenticatorsResponse"]["authenticators"][number]

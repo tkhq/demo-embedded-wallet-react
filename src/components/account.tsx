@@ -1,11 +1,13 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/providers/auth-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
+  Download,
   LogOutIcon,
   PlusCircleIcon,
   SettingsIcon,
@@ -28,6 +30,7 @@ import {
 import { Skeleton } from "./ui/skeleton"
 
 export default function Account() {
+  const router = useRouter()
   const { logout } = useAuth()
   const { user } = useUser()
   const { state, newWallet, newWalletAccount, selectWallet, selectAccount } =
@@ -161,7 +164,10 @@ export default function Account() {
             <span>New Wallet</span>
           </DropdownMenuItem>
         )}
-
+        <DropdownMenuItem>
+          <Download className="mr-2 h-4 w-4" />
+          <span>Import Wallet</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="flex items-center gap-2">
           <span>Accounts</span>
@@ -185,7 +191,7 @@ export default function Account() {
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/settings")}>
           <SettingsIcon className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>

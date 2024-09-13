@@ -1,6 +1,5 @@
 "use client"
 
-// import { TurnkeyProvider } from "./turnkey-provider"
 import { TurnkeyProvider } from "@turnkey/sdk-react"
 
 import { turnkeyConfig } from "@/config/turnkey"

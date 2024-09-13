@@ -88,7 +88,9 @@ export default function WalletCard() {
         </div>
         <div className="text-sm text-muted-foreground">
           {selectedAccount?.balance
-            ? Number(formatEther(selectedAccount?.balance)).toFixed(8)
+            ? parseFloat(
+                Number(formatEther(selectedAccount?.balance)).toFixed(8)
+              ).toString()
             : "0"}{" "}
           ETH
         </div>

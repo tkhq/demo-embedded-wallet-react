@@ -78,7 +78,7 @@ export default function SendTransaction({
         className="w-full rounded-lg bg-blue-500 py-3 text-white hover:bg-blue-600"
         onClick={handleSend}
       >
-        Send now
+        Send
       </Button>
     </div>
   )

@@ -1,4 +1,4 @@
-import { Turnkey, TurnkeyBrowserClient } from "@turnkey/sdk-browser"
+import { TurnkeyBrowserClient } from "@turnkey/sdk-browser"
 import { createAccount } from "@turnkey/viem"
 import {
   Alchemy,
@@ -7,7 +7,6 @@ import {
   AssetTransfersCategory,
   Network,
 } from "alchemy-sdk"
-import { toast } from "sonner"
 import {
   Account,
   Address,
@@ -16,9 +15,8 @@ import {
   getAddress,
   http,
   parseEther,
-  parseGwei,
   PublicClient,
-  toHex,
+  webSocket,
 } from "viem"
 import { privateKeyToAccount } from "viem/accounts"
 import { sepolia } from "viem/chains"
@@ -68,26 +66,76 @@ const listenForTransactions = (addresses: string[]) => {
   )
 }
 
-export const watchPendingTransactions = (
-  address: Address,
-  callback: (tx: Transaction) => void
-) => {
-  alchemy.ws.on(
-    {
-      method: AlchemySubscription.PENDING_TRANSACTIONS,
-      toAddress: address,
-      fromAddress: address,
-    },
-    (tx) => callback(tx)
-  )
+let webSocketClient: PublicClient
+
+const getWebSocketClient = () => {
+  if (!webSocketClient) {
+    webSocketClient = createPublicClient({
+      chain: sepolia,
+      transport: webSocket("wss://ethereum-sepolia-rpc.publicnode.com"),
+      // transport: webSocket(
+      //   "wss://eth-sepolia.g.alchemy.com/v2/erQ2WeonfN1VMZQM_PgCMTQB4USjPXoD"
+      // ),
+    })
+  }
+  return webSocketClient
 }
 
+export const watchPendingTransactions = (
+  address: Address,
+  callback: (tx: any) => void
+) => {
+  const webSocketClient = getWebSocketClient()
+  const publicClient = getPublicClient()
+  const unwatch = webSocketClient.watchPendingTransactions({
+    onTransactions: (hashes) => {
+      hashes.forEach(async (hash) => {
+        // console.log("hash", hash)
+        const tx = await publicClient.getTransaction({ hash })
+        if (tx && (tx.from === address || tx.to === address)) {
+          console.log("tx", tx)
+          callback(tx)
+        }
+      })
+    },
+  })
+
+  console.log("Watching pending transactions for", address)
+  return unwatch
+}
+
+// export const watchPendingTransactions = (
+//   address: Address,
+//   callback: (tx: Transaction) => void
+// ) => {
+//   const publicClient = getPublicClient()
+//   const unwatch = publicClient.watchPendingTransactions({
+//     onTransactions: (hashes) => console.log(hashes),
+//   })
+
+//   console.log("watching pending transactions for", address)
+//   alchemy.ws.on(
+//     {
+//       method: AlchemySubscription.PENDING_TRANSACTIONS,
+//       // fromAddress: address,
+//     },
+//     (tx) => callback(tx)
+//   )
+//   alchemy.ws.on(
+//     {
+//       method: AlchemySubscription.PENDING_TRANSACTIONS,
+//       toAddress: address,
+//     },
+//     (tx) => callback(tx)
+//   )
+// }
+
 export const fundWallet = async (address: Address, amount: string) => {
+  const publicClient = getPublicClient()
   // TODO: get private key from env
   const privateKey =
     "0x4b48b9be7ec201bf165e90e89f451bf13ac8b569fd86d0c17977d67dc3642b35"
 
-  // Set up the wallet client
   const client = createWalletClient({
     chain: sepolia,
     transport: http(turnkeyConfig.rpcUrl),
@@ -95,9 +143,9 @@ export const fundWallet = async (address: Address, amount: string) => {
 
   // Set up the local account
   const account = privateKeyToAccount(privateKey)
-  const transactionCount = await publicClient.getTransactionCount({
-    address: account.address,
-  })
+  // const transactionCount = await publicClient.getTransactionCount({
+  //   address: account.address,
+  // })
 
   try {
     // Send the transaction
@@ -105,8 +153,6 @@ export const fundWallet = async (address: Address, amount: string) => {
       account,
       to: address,
       value: parseEther(amount),
-      gasPrice: parseGwei("10"),
-      nonce: transactionCount,
     })
 
     const toastId = showTransactionToast({

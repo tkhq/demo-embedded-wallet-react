@@ -1,7 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useTransactions } from "@/providers/transactions-provider"
+import { useEffect, useRef, useState } from "react"
 import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
 
@@ -23,28 +22,45 @@ import { ScrollArea } from "./ui/scroll-area"
 
 export default function Activity() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const { transactions: allTransactions } = useTransactions()
+
   const { ethPrice } = useTokenPrice()
   const { state } = useWallets()
   const { selectedAccount } = state
+  const [tableHeight, setTableHeight] = useState<number | null>(null)
+  const tableRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const fetchTransactions = async () => {
       if (selectedAccount?.address) {
         const transactions = await getTransactions(selectedAccount?.address)
-
         setTransactions(transactions)
-        watchPendingTransactions(
-          selectedAccount?.address,
-          (tx: Transaction) => {
-            console.log("pending tx", tx)
-            // setTransactions((prev) => [...prev, tx])
-          }
-        )
+        // watchPendingTransactions(
+        //   selectedAccount?.address,
+        //   (tx: Transaction) => {
+        //     console.log("pending tx", tx)
+        //     // setTransactions((prev) => [...prev, tx])
+        //   }
+        // )
       }
     }
     fetchTransactions()
   }, [selectedAccount?.address])
+
+  useEffect(() => {
+    const updateTableHeight = () => {
+      if (tableRef.current) {
+        const height = tableRef.current.scrollHeight
+        setTableHeight(Math.min(height, 450))
+      }
+    }
+
+    updateTableHeight()
+    window.addEventListener("resize", updateTableHeight)
+
+    return () => {
+      window.removeEventListener("resize", updateTableHeight)
+    }
+  }, [transactions])
 
   return (
     <Card>
@@ -54,9 +70,10 @@ export default function Activity() {
       <CardContent>
         <ScrollArea
           className={cn(
-            " w-full rounded-md",
-            transactions.length > 0 ? "h-[450px]" : ""
+            "w-full rounded-md",
+            tableHeight ? `h-[${tableHeight}px]` : ""
           )}
+          ref={tableRef}
         >
           <Table>
             <TableHeader className="sticky top-0 bg-card">

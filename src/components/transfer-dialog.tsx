@@ -12,7 +12,12 @@ import { getPublicClient, getTurnkeyWalletClient } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -52,6 +57,8 @@ export default function TransferDialog() {
   const [transactionRequest, setTransactionRequest] =
     useState<TransactionRequest | null>(null)
 
+  const [isValid, setIsValid] = useState(false)
+
   const [walletClient, setWalletClient] = useState<Awaited<
     ReturnType<typeof getTurnkeyWalletClient>
   > | null>(null)
@@ -81,6 +88,14 @@ export default function TransferDialog() {
       setAmountUSD((ethAmountParsed * ethPriceParsed).toFixed(2))
     }
   }, [ethAmount, ethPrice])
+
+  useEffect(() => {
+    if (recipientAddress && selectedAccount?.balance && ethAmount) {
+      const ethAmountWei = parseEther(ethAmount)
+      const valid = ethAmountWei > 0 && ethAmountWei < selectedAccount.balance
+      setIsValid(valid)
+    }
+  }, [ethAmount, recipientAddress, selectedAccount])
 
   const handleSelect = (action: TransferAction) => {
     setSelectedAction(action)
@@ -217,7 +232,7 @@ export default function TransferDialog() {
         </div>
 
         <Button
-          disabled={!recipientAddress || !ethAmount}
+          disabled={!isValid}
           className="w-full"
           onClick={handlePreviewSendTransaction}
         >
@@ -288,6 +303,9 @@ export default function TransferDialog() {
       </div>
       <DialogContent className="p-4 sm:max-w-[425px]">
         <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
+        <DialogDescription className="sr-only">
+          Send or receive ETH to your Turnkey wallet
+        </DialogDescription>
         <Card className="w-full border-0  shadow-none">
           <CardContent className="p-6">
             {currentView === "send" && (
