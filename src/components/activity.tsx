@@ -34,12 +34,6 @@ export default function Activity() {
         selectedAccount?.address &&
         allTransactions[selectedAccount.address]
       ) {
-        console.log(
-          "activity fetchTransactions",
-          allTransactions,
-          selectedAccount?.address,
-          allTransactions[selectedAccount.address]
-        )
         setTransactions(allTransactions[selectedAccount.address])
       }
     }

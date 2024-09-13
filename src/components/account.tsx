@@ -164,7 +164,7 @@ export default function Account() {
             <span>New Wallet</span>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem>
+        <DropdownMenuItem disabled>
           <Download className="mr-2 h-4 w-4" />
           <span>Import Wallet</span>
         </DropdownMenuItem>

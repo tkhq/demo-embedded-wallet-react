@@ -23,7 +23,6 @@ export function Passkeys() {
         const { authenticators } = await currentUserSession.getAuthenticators({
           userId: `${user?.userId}`,
         })
-        console.log("authenticatorsResponse", authenticators)
         setAuthenticators(authenticators)
       }
     }

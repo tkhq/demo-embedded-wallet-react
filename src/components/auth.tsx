@@ -107,16 +107,10 @@ export default function Auth() {
                 </span>
               </div>
             </div>
-            <Button variant="outline" className="w-full font-semibold">
+            <Button disabled variant="outline" className="w-full font-semibold">
               Continue with Wallet
             </Button>
           </div>
-          {/* <div className="mt-4 text-center text-sm">
-            Lost passkey?{" "}
-            <Link href="#" className="underline" prefetch={false}>
-              Recover your wallet here.
-            </Link>
-          </div> */}
         </CardContent>
       </Card>
       <Legal />

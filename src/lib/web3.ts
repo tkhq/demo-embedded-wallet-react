@@ -50,7 +50,6 @@ export const watchMinedTransactions = (
   address: Address,
   callback: (tx: Transaction) => void
 ) => {
-  console.log("Listening for transactions for", address)
   const addressPairs: [
     AlchemyMinedTransactionsAddress,
     ...AlchemyMinedTransactionsAddress[],
@@ -110,7 +109,6 @@ export const watchPendingTransactions = (
       hashes.forEach(async (hash) => {
         const tx = await publicClient.getTransaction({ hash })
         if (tx && (tx.from === address || tx.to === address)) {
-          console.log("tx", tx)
           callback(tx)
         }
       })

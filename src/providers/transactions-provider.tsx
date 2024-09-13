@@ -103,7 +103,6 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     const fetchTransactions = async () => {
       if (selectedAccount?.address) {
-        // console.log("fetching transactions", selectedAccount.address)
         dispatch({ type: "SET_FETCHING_TRANSACTIONS" })
         try {
           const transactions = await getTransactions(selectedAccount.address)
@@ -125,7 +124,6 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
           unwatchRef.current = watchMinedTransactions(
             selectedAccount.address,
             (tx) => {
-              console.log("New mined transaction", tx)
               dispatch({
                 type: "ADD_TRANSACTION",
                 payload: {
