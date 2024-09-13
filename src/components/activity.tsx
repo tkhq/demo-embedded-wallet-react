@@ -32,7 +32,7 @@ export default function Activity() {
     const fetchTransactions = async () => {
       if (selectedAccount?.address) {
         const transactions = await getTransactions(selectedAccount?.address)
-        console.log("transactions", transactions)
+
         setTransactions(transactions)
         watchPendingTransactions(
           selectedAccount?.address,

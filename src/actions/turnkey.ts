@@ -5,9 +5,10 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   TurnkeyServerClient,
 } from "@turnkey/sdk-server"
+import { getAddress } from "viem"
 
 import { env } from "@/env.mjs"
-import { Attestation, Email } from "@/types/turnkey"
+import { Attestation, Email, Wallet } from "@/types/turnkey"
 import { siteConfig } from "@/config/site"
 import { turnkeyConfig } from "@/config/turnkey"
 
@@ -27,13 +28,15 @@ const client = new TurnkeyServerClient({
 type EmailParam = { email: Email }
 type PublicKeyParam = { publicKey: string }
 type UsernameParam = { username: string }
+type OidcTokenParam = { oidcToken: string }
 
 export function getSubOrgId(param: EmailParam): Promise<string>
 export function getSubOrgId(param: PublicKeyParam): Promise<string>
 export function getSubOrgId(param: UsernameParam): Promise<string>
+export function getSubOrgId(param: OidcTokenParam): Promise<string>
 
 export async function getSubOrgId(
-  param: EmailParam | PublicKeyParam | UsernameParam
+  param: EmailParam | PublicKeyParam | UsernameParam | OidcTokenParam
 ): Promise<string> {
   let filterType: string
   let filterValue: string
@@ -47,6 +50,9 @@ export async function getSubOrgId(
   } else if ("username" in param) {
     filterType = "USERNAME"
     filterValue = param.username
+  } else if ("oidcToken" in param) {
+    filterType = "OIDC_TOKEN"
+    filterValue = param.oidcToken
   } else {
     throw new Error("Invalid parameter")
   }
@@ -81,26 +87,39 @@ export const getUser = async (userId: string, subOrgId: string) => {
 
 export const createUserSubOrg = async ({
   email,
-  challenge,
-  attestation,
+  passkey,
+  oauth,
 }: {
-  email: Email
-  challenge: string
-  attestation: Attestation
+  email?: Email
+  passkey?: {
+    challenge: string
+    attestation: Attestation
+  }
+  oauth?: {
+    credential: string
+  }
 }) => {
-  const authenticators =
-    challenge && attestation
-      ? [
-          {
-            authenticatorName: "Passkey",
-            challenge,
-            attestation,
-          },
-        ]
-      : []
+  const authenticators = passkey
+    ? [
+        {
+          authenticatorName: "Passkey",
+          challenge: passkey.challenge,
+          attestation: passkey.attestation,
+        },
+      ]
+    : []
+
+  const oauthProviders = oauth
+    ? [
+        {
+          providerName: "Google Auth - Embedded Wallet",
+          oidcToken: oauth.credential,
+        },
+      ]
+    : []
 
   const subOrganizationName = `Sub Org - ${email}`
-  const userName = email.split("@")?.[0] || email
+  const userName = email ? email.split("@")?.[0] || email : ""
 
   const subOrg = await client.createSubOrganization({
     organizationId: turnkeyConfig.organizationId,
@@ -109,7 +128,7 @@ export const createUserSubOrg = async ({
       {
         userName,
         userEmail: email,
-        oauthProviders: [],
+        oauthProviders,
         authenticators,
         apiKeys: [],
       },
@@ -120,13 +139,34 @@ export const createUserSubOrg = async ({
       accounts: DEFAULT_ETHEREUM_ACCOUNTS,
     },
   })
-
-  const session = await client.createReadOnlySession({
+  const userId = subOrg.rootUserIds?.[0]
+  if (!userId) {
+    throw new Error("No root user ID found")
+  }
+  const { user } = await client.getUser({
     organizationId: subOrg.subOrganizationId,
-    userId: subOrg.rootUserIds?.[0],
+    userId,
   })
 
-  return { subOrg, session }
+  return { subOrg, user }
+}
+
+export const oauth = async ({
+  credential,
+  targetPublicKey,
+  targetSubOrgId,
+}: {
+  credential: string
+  targetPublicKey: string
+  targetSubOrgId: string
+}) => {
+  const oauthResponse = await client.oauth({
+    oidcToken: credential,
+    targetPublicKey,
+    organizationId: targetSubOrgId,
+  })
+
+  return oauthResponse
 }
 
 const getMagicLinkTemplate = (action: string, email: string, method: string) =>
@@ -154,4 +194,54 @@ export const initEmailAuth = async ({
 
     return authResponse
   }
+}
+
+export async function getWalletsWithAccounts(
+  organizationId: string
+): Promise<Wallet[]> {
+  const { wallets } = await client.getWallets({
+    organizationId,
+  })
+
+  return await Promise.all(
+    wallets.map(async (wallet) => {
+      const { accounts } = await client.getWalletAccounts({
+        organizationId,
+        walletId: wallet.walletId,
+      })
+
+      const accountsWithBalance = await Promise.all(
+        accounts.map(async ({ address, ...account }) => {
+          return {
+            ...account,
+            address: getAddress(address),
+            balance: undefined,
+          }
+        })
+      )
+      return { ...wallet, accounts: accountsWithBalance }
+    })
+  )
+}
+
+export const getWallet = async (
+  walletId: string,
+  organizationId: string
+): Promise<Wallet> => {
+  const [{ wallet }, accounts] = await Promise.all([
+    client.getWallet({ walletId, organizationId }),
+    client
+      .getWalletAccounts({ walletId, organizationId })
+      .then(({ accounts }) =>
+        accounts.map(({ address, ...account }) => {
+          return {
+            ...account,
+            address: getAddress(address),
+            balance: undefined,
+          }
+        })
+      ),
+  ])
+
+  return { ...wallet, accounts }
 }

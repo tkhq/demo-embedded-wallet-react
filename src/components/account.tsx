@@ -54,7 +54,6 @@ export default function Account() {
     (e: React.MouseEvent) => {
       e.preventDefault()
       e.stopPropagation()
-      console.log("Creating new wallet:", newWalletName)
       newWallet(newWalletName)
       setIsNewWalletMode(false)
       setNewWalletName("")

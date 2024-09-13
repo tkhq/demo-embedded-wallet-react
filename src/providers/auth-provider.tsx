@@ -4,9 +4,12 @@ import { createContext, ReactNode, useContext, useReducer } from "react"
 import { useRouter } from "next/navigation"
 import {
   createUserSubOrg,
+  getSubOrgId,
   getSubOrgIdByEmail,
   initEmailAuth,
+  oauth,
 } from "@/actions/turnkey"
+import { googleLogout } from "@react-oauth/google"
 import { useTurnkey } from "@turnkey/sdk-react"
 
 import { Email, User } from "@/types/turnkey"
@@ -60,7 +63,6 @@ const initialState: AuthState = {
 }
 
 function authReducer(state: AuthState, action: AuthActionType): AuthState {
-  console.log("authReducer", action, state)
   switch (action.type) {
     case "LOADING":
       return { ...state, loading: action.payload }
@@ -88,13 +90,15 @@ const AuthContext = createContext<{
     continueWith: string
     credentialBundle: string
   }) => Promise<void>
-  loginWithPasskey: (email: Email) => Promise<void>
+  loginWithPasskey: (email?: Email) => Promise<void>
+  loginWithOAuth: (credential: string) => Promise<void>
   logout: () => Promise<void>
 }>({
   state: initialState,
   initEmailLogin: async () => {},
   completeEmailAuth: async () => {},
   loginWithPasskey: async () => {},
+  loginWithOAuth: async () => {},
   logout: async () => {},
 })
 
@@ -155,23 +159,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
-  const loginWithPasskey = async (email: Email) => {
+  const loginWithPasskey = async (email?: Email) => {
     dispatch({ type: "LOADING", payload: true })
     try {
-      // Determine if the user has a sub-organization associated with their email
-      const subOrgId = await getSubOrgIdByEmail(email as Email)
+      let loginResponse
 
-      if (subOrgId?.length) {
-        const loginResponse = await passkeyClient?.login()
+      if (email) {
+        // Determine if the user has a sub-organization associated with their email
+        const subOrgId = await getSubOrgIdByEmail(email as Email)
 
-        if (loginResponse?.organizationId) {
-          dispatch({
-            type: "PASSKEY",
-            payload: loginResponseToUser(loginResponse),
-          })
-
-          router.push("/dashboard")
+        if (subOrgId?.length) {
+          loginResponse = await passkeyClient?.login()
         }
+      } else {
+        // If no email is provided, assume the user already has an account
+        // Used for new sign ups when logging in for the first time
+        loginResponse = await passkeyClient?.login()
+      }
+
+      if (loginResponse?.organizationId) {
+        dispatch({
+          type: "PASSKEY",
+          payload: loginResponseToUser(loginResponse),
+        })
+
+        router.push("/dashboard")
       } else {
         // User either does not have an account with a sub organization
         // or does not have a passkey
@@ -188,34 +200,57 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Create a new sub organization for the user
         if (encodedChallenge && attestation) {
-          const { session } = await createUserSubOrg({
+          const { subOrg } = await createUserSubOrg({
             email: email as Email,
-            challenge: encodedChallenge,
-            attestation,
+            passkey: {
+              challenge: encodedChallenge,
+              attestation,
+            },
           })
-          if (session) {
-            const org = {
-              organizationId: session.organizationId,
-              organizationName: session.organizationName,
-            }
-            const currentUser: User = {
-              userId: session.userId,
-              username: session.username,
-              organization: org,
-              readOnlySession: {
-                session: session.session,
-                sessionExpiry: Number(session.sessionExpiry),
-              },
-            }
-
-            // @todo: replace with storage APIs from @turnkey/sdk-browser once available
-            localStorage.setItem(
-              "@turnkey/current_user",
-              JSON.stringify(currentUser)
-            )
-            console.log("currentUser", currentUser)
-            router.push("/dashboard")
+          // New sub organization created, with passkey authenticator,
+          // redirect to login page to login with passkey
+          if (subOrg) {
+            router.push("/login")
           }
+        }
+      }
+    } catch (error: any) {
+      dispatch({ type: "ERROR", payload: error.message })
+    } finally {
+      dispatch({ type: "LOADING", payload: false })
+    }
+  }
+
+  const loginWithOAuth = async (credential: string) => {
+    dispatch({ type: "LOADING", payload: true })
+    try {
+      // Determine if the user has a sub-organization associated with their email
+      let subOrgId = await getSubOrgId({ oidcToken: credential })
+
+      if (!subOrgId) {
+        // User does not have a sub-organization associated with their email
+        // Create a new sub-organization for the user
+        const { subOrg } = await createUserSubOrg({
+          oauth: {
+            credential,
+          },
+        })
+        subOrgId = subOrg.subOrganizationId
+      }
+
+      const oauthResponse = await oauth({
+        credential,
+        targetPublicKey: `${authIframeClient?.iframePublicKey}`,
+        targetSubOrgId: subOrgId,
+      })
+      const credentialResponse = await authIframeClient?.injectCredentialBundle(
+        oauthResponse.credentialBundle
+      )
+
+      if (credentialResponse) {
+        const loginResponse = await authIframeClient?.login()
+        if (loginResponse?.organizationId) {
+          router.push("/dashboard")
         }
       }
     } catch (error: any) {
@@ -227,6 +262,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await turnkey?.logoutUser()
+    googleLogout()
     router.push("/")
   }
 
@@ -237,6 +273,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         initEmailLogin,
         completeEmailAuth,
         loginWithPasskey,
+        loginWithOAuth,
         logout,
       }}
     >

@@ -94,7 +94,7 @@ export default function TransferDialog() {
       to: getAddress(recipientAddress),
       value: parseEther(ethAmount),
     })
-    console.log({ transaction })
+
     setTransactionRequest(transaction)
 
     setCurrentView("sendTransaction")

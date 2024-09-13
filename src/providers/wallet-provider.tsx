@@ -8,6 +8,10 @@ import {
   useReducer,
 } from "react"
 import {
+  getWallet,
+  getWalletsWithAccounts as serverGetWalletsWithAccounts,
+} from "@/actions/turnkey"
+import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultEthereumAccountAtIndex,
   TurnkeyBrowserClient,
@@ -16,7 +20,7 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { getAddress } from "viem"
 
 import { Account, Wallet } from "@/types/turnkey"
-import { getBalance, getPublicClient } from "@/lib/web3"
+import { getBalance } from "@/lib/web3"
 
 interface WalletsState {
   loading: boolean
@@ -32,6 +36,7 @@ type Action =
   | { type: "SET_WALLETS"; payload: Wallet[] }
   | { type: "SET_SELECTED_WALLET"; payload: Wallet }
   | { type: "SET_SELECTED_ACCOUNT"; payload: Account }
+  | { type: "ADD_WALLET"; payload: Wallet }
 
 const WalletsContext = createContext<
   | {
@@ -57,6 +62,8 @@ function walletsReducer(state: WalletsState, action: Action): WalletsState {
       return { ...state, selectedWallet: action.payload }
     case "SET_SELECTED_ACCOUNT":
       return { ...state, selectedAccount: action.payload }
+    case "ADD_WALLET":
+      return { ...state, wallets: [...state.wallets, action.payload] }
     default:
       return state
   }
@@ -73,7 +80,6 @@ const initialState: WalletsState = {
 async function getWalletsWithAccounts(
   browserClient: TurnkeyBrowserClient
 ): Promise<Wallet[]> {
-  const publicClient = getPublicClient()
   const { wallets } = await browserClient.getWallets()
   return await Promise.all(
     wallets.map(async (wallet) => {
@@ -82,10 +88,11 @@ async function getWalletsWithAccounts(
       })
       const accountsWithBalance = await Promise.all(
         accounts.map(async ({ address, ...account }) => {
-          const _address = getAddress(address)
-          const balance = await getBalance(_address)
-
-          return { ...account, address: _address, balance }
+          return {
+            ...account,
+            address: getAddress(address),
+            balance: undefined,
+          }
         })
       )
       return { ...wallet, accounts: accountsWithBalance }
@@ -129,10 +136,7 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (state.selectedWallet) {
-      dispatch({
-        type: "SET_SELECTED_ACCOUNT",
-        payload: state.selectedWallet.accounts[0],
-      })
+      selectAccount(state.selectedWallet.accounts[0])
     }
   }, [state.selectedWallet])
 
@@ -172,23 +176,31 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
   const newWallet = async (walletName?: string) => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-      const browserClient = await turnkey?.currentUserSession()
-      if (passkeyClient && browserClient) {
-        const { walletId } = await passkeyClient.createWallet({
+      const activeClient = await getActiveClient()
+      if (activeClient) {
+        const { walletId } = await activeClient.createWallet({
           walletName: walletName || "New Wallet",
           accounts: DEFAULT_ETHEREUM_ACCOUNTS,
         })
-
         if (walletId) {
-          // @todo - instead of fetching all wallets, we should add the new wallet account to the existing list
-          const wallets = await getWalletsWithAccounts(browserClient)
-          dispatch({ type: "SET_WALLETS", payload: wallets })
-          if (wallets.length > 0) {
-            dispatch({ type: "SET_SELECTED_WALLET", payload: wallets[0] })
-            dispatch({
-              type: "SET_SELECTED_ACCOUNT",
-              payload: wallets[0].accounts[0],
-            })
+          const browserClient = await turnkey?.currentUserSession()
+          if (browserClient) {
+            const [{ wallet }, accounts] = await Promise.all([
+              browserClient.getWallet({ walletId }),
+              browserClient
+                .getWalletAccounts({ walletId })
+                .then(({ accounts }) =>
+                  accounts.map(({ address, ...account }) => {
+                    return {
+                      ...account,
+                      address: getAddress(address),
+                      balance: undefined,
+                    }
+                  })
+                ),
+            ])
+            const newWallet: Wallet = { ...wallet, accounts }
+            dispatch({ type: "ADD_WALLET", payload: newWallet })
           }
         }
       }
@@ -203,8 +215,9 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_SELECTED_WALLET", payload: wallet })
   }
 
-  const selectAccount = (account: Account) => {
-    dispatch({ type: "SET_SELECTED_ACCOUNT", payload: account })
+  const selectAccount = async (account: Account) => {
+    const balance = await getBalance(account.address)
+    dispatch({ type: "SET_SELECTED_ACCOUNT", payload: { ...account, balance } })
   }
 
   const value = {

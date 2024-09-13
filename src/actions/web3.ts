@@ -34,7 +34,6 @@ type TokenPriceResponse<T extends string> = {
 export const getTokenPrice = async <T extends string>(
   token: T
 ): Promise<number> => {
-  console.log("fetching token price", token)
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`
   const response = await fetch(url, {
     method: "GET",
@@ -45,6 +44,5 @@ export const getTokenPrice = async <T extends string>(
   })
   const data: TokenPriceResponse<T> = await response.json()
 
-  console.log("token response", data[token].usd)
   return data[token].usd
 }

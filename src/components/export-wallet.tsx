@@ -7,7 +7,7 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { Key, Loader, RectangleEllipsis } from "lucide-react"
 
 import { turnkeyConfig } from "@/config/turnkey"
-import { cn } from "@/lib/utils" // Import the cn utility
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -35,23 +35,27 @@ export default function ExportWalletDialog({
   )
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const iframeContainerRef = useRef<HTMLDivElement | null>(null)
-  const [injectResponse, setInjectResponse] = useState(false) // Add state for injectResponse
-  const [selectedExportType, setSelectedExportType] = useState("seed-phrase") // Add state for selected export type
-  const [loading, setLoading] = useState(false) // Add state for loading
+  const [injectResponse, setInjectResponse] = useState(false)
+  const [selectedExportType, setSelectedExportType] = useState("seed-phrase")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (isDialogOpen) {
+      // Create a MutationObserver to watch for changes in the DOM
       const observer = new MutationObserver(() => {
+        // If the iframe container is found, initialize the iframe and stop observing
         if (iframeContainerRef.current) {
           initIframe()
-          observer.disconnect() // Stop observing once the element is found
+          observer.disconnect()
         }
       })
 
+      // If the iframe container is not yet available, start observing the DOM
       if (!iframeContainerRef.current) {
         observer.observe(document.body, { childList: true, subtree: true })
       }
 
+      // Cleanup function to disconnect the observer when the dialog is closed
       return () => observer.disconnect()
     }
   }, [isDialogOpen])
@@ -82,7 +86,7 @@ export default function ExportWalletDialog({
         }
       }
     }
-    setLoading(false) // Set loading to false after export completes
+    setLoading(false)
   }
 
   const exportSeedPhrase = async () => {
@@ -148,8 +152,8 @@ export default function ExportWalletDialog({
         </DialogHeader>
         <div className="py-4">
           <RadioGroup
-            value={selectedExportType} // Bind state to RadioGroup
-            onValueChange={setSelectedExportType} // Update state on change
+            value={selectedExportType}
+            onValueChange={setSelectedExportType}
             className="flex gap-4"
           >
             <div className="flex-1">

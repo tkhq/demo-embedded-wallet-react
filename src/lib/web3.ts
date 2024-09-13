@@ -57,7 +57,6 @@ const listenForTransactions = (addresses: string[]) => {
     ...AlchemyMinedTransactionsAddress[],
   ]
 
-  console.log("listenForTransactions", addressPairs)
   alchemy.ws.on(
     {
       method: AlchemySubscription.MINED_TRANSACTIONS,

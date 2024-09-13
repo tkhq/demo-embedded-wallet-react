@@ -38,6 +38,9 @@ dependencies:
   '@radix-ui/react-tooltip':
     specifier: ^1.1.2
     version: 1.1.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1)(react@18.3.1)
+  '@react-oauth/google':
+    specifier: ^0.12.1
+    version: 0.12.1(react-dom@18.3.1)(react@18.3.1)
   '@t3-oss/env-nextjs':
     specifier: ^0.9.2
     version: 0.9.2(typescript@5.4.5)(zod@3.23.4)
@@ -3979,6 +3982,16 @@ packages:
       nullthrows: 1.1.1
       react: 18.3.1
       react-native: 0.74.0(@babel/core@7.24.4)(@babel/preset-env@7.25.3)(@types/react@18.3.1)(react@18.3.1)
+    dev: false
+
+  /@react-oauth/google@0.12.1(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-qagsy22t+7UdkYAiT5ZhfM4StXi9PPNvw0zuwNmabrWyMKddczMtBIOARflbaIj+wHiQjnMAsZmzsUYuXeyoSg==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
     dev: false
 
   /@rnx-kit/chromium-edge-launcher@1.0.0:

@@ -32,7 +32,7 @@ export default function SendTransaction({
 
   const totalGasFeesUSD = parseFloat(formatEther(totalGasFees)) * ethPrice
   const totalUSD = parseFloat(amountUSD) + totalGasFeesUSD
-  console.log({ totalGasFeesUSD, totalGasFees, totalUSD })
+
   return (
     <div className="">
       <div className="mb-6">

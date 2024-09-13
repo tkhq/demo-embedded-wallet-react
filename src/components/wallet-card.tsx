@@ -71,10 +71,13 @@ export default function WalletCard() {
       <CardContent>
         <div className="text-xs ">
           {selectedAccount?.address ? (
-            <>
+            <div
+              onClick={handleCopyAddress}
+              className="flex cursor-pointer items-center gap-2"
+            >
               {truncateAddress(selectedAccount?.address)}
-              <CopyIcon className="h-4 w-4" />
-            </>
+              <CopyIcon className="h-3 w-3" />
+            </div>
           ) : (
             <Skeleton className="h-3 w-32  rounded-sm bg-muted-foreground/50" />
           )}

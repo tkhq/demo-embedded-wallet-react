@@ -21,7 +21,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
         <Features />
       </div>
       {children}
-      <ModeToggle className="absolute right-4 top-4" />
+      {/* <ModeToggle className="absolute right-4 top-4" /> */}
     </main>
   )
 }

@@ -8,6 +8,7 @@ import { useTurnkey } from "@turnkey/sdk-react"
 import { Email } from "@/types/turnkey"
 import { useUser } from "@/hooks/use-user"
 
+import GoogleAuth from "./google-auth"
 import { Icons } from "./icons"
 import Legal from "./legal"
 import { Button } from "./ui/button"
@@ -32,13 +33,12 @@ export default function Auth() {
   }, [user])
 
   const handlePasskeyLogin = async () => {
-    console.log("attempt login with passkey", passkeyClient, email)
     setLoadingAction("passkey")
     if (!email || !passkeyClient) {
       setLoadingAction(null)
       return
     }
-    console.log("logging in with passkey", email)
+
     await loginWithPasskey(email as Email)
     setLoadingAction(null)
   }
@@ -48,12 +48,10 @@ export default function Auth() {
     await initEmailLogin(email as Email)
     setLoadingAction(null)
   }
-  // getTransactions("0x03dB66341093b9a0d421ACef6593d9119F05b3f2").then(
-  //   console.log
-  // )
+
   return (
     <>
-      <Card className="mx-auto w-2/3 max-w-lg">
+      <Card className="mx-auto w-2/3 max-w-md">
         <CardHeader className="space-y-4">
           <Icons.turnkey className="h-16 w-full  stroke-0 py-2 dark:stroke-white" />
           <CardTitle className="text-center text-xl font-medium">
@@ -98,9 +96,7 @@ export default function Auth() {
                 </span>
               </div>
             </div>
-            <Button variant="outline" className="w-full font-semibold">
-              Continue with Google
-            </Button>
+            <GoogleAuth loading={state.loading && loadingAction === "email"} />
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <Separator className="w-full" />

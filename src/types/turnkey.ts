@@ -13,7 +13,7 @@ export type Account = Omit<
   "address"
 > & {
   address: Address
-  balance: bigint
+  balance: bigint | undefined
 }
 export type Wallet =
   TurnkeyApiTypes["v1GetWalletsResponse"]["wallets"][number] & {
@@ -23,4 +23,3 @@ export type Wallet =
 export type User = Awaited<ReturnType<Turnkey["getCurrentUser"]>> & {
   email?: Email
 }
-

@@ -8,8 +8,6 @@ import { turnkeyConfig } from "@/config/turnkey"
 import { AuthProvider } from "./auth-provider"
 import { ThemeProvider } from "./theme-provider"
 
-console.debug("turnkeyConfig", turnkeyConfig.passkey.rpId)
-
 export const Providers: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => (
