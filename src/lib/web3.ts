@@ -22,7 +22,7 @@ import { privateKeyToAccount } from "viem/accounts"
 import { sepolia } from "viem/chains"
 
 import { env } from "@/env.mjs"
-import type { Transaction } from "@/types/web3"
+import type { AlchemyMinedTransaction, Transaction } from "@/types/web3"
 import { turnkeyConfig } from "@/config/turnkey"
 
 import { showTransactionToast } from "./toast"
@@ -46,11 +46,15 @@ const settings = {
 
 const alchemy = new Alchemy(settings)
 
-const listenForTransactions = (addresses: string[]) => {
+export const watchMinedTransactions = (
+  address: Address,
+  callback: (tx: Transaction) => void
+) => {
+  console.log("Listening for transactions for", address)
   const addressPairs: [
     AlchemyMinedTransactionsAddress,
     ...AlchemyMinedTransactionsAddress[],
-  ] = addresses.flatMap((address) => [{ from: address }, { to: address }]) as [
+  ] = [{ from: address }, { to: address }] as [
     AlchemyMinedTransactionsAddress,
     ...AlchemyMinedTransactionsAddress[],
   ]
@@ -62,8 +66,22 @@ const listenForTransactions = (addresses: string[]) => {
       includeRemoved: true,
       hashesOnly: false,
     },
-    (tx) => console.log(tx)
+    (tx: AlchemyMinedTransaction) => {
+      const transaction: Transaction = {
+        hash: tx.transaction.hash,
+        blockNumber: parseInt(tx.transaction.blockNumber, 16),
+        value: BigInt(tx.transaction.value),
+        from: tx.transaction.from,
+        to: tx.transaction.to,
+        status: tx.removed ? "failed" : "received",
+        timestamp: new Date().toISOString(),
+      }
+      callback?.(transaction)
+    }
   )
+  return () => {
+    alchemy.ws.off(AlchemySubscription.MINED_TRANSACTIONS)
+  }
 }
 
 let webSocketClient: PublicClient
@@ -90,7 +108,6 @@ export const watchPendingTransactions = (
   const unwatch = webSocketClient.watchPendingTransactions({
     onTransactions: (hashes) => {
       hashes.forEach(async (hash) => {
-        // console.log("hash", hash)
         const tx = await publicClient.getTransaction({ hash })
         if (tx && (tx.from === address || tx.to === address)) {
           console.log("tx", tx)
@@ -100,7 +117,6 @@ export const watchPendingTransactions = (
     },
   })
 
-  console.log("Watching pending transactions for", address)
   return unwatch
 }
 
@@ -141,14 +157,9 @@ export const fundWallet = async (address: Address, amount: string) => {
     transport: http(turnkeyConfig.rpcUrl),
   })
 
-  // Set up the local account
   const account = privateKeyToAccount(privateKey)
-  // const transactionCount = await publicClient.getTransactionCount({
-  //   address: account.address,
-  // })
 
   try {
-    // Send the transaction
     const hash = await client.sendTransaction({
       account,
       to: address,
@@ -229,7 +240,7 @@ export const getTransactions = async (
         from: getAddress(from),
         to: to ? getAddress(to) : null,
         hash,
-        value: value ? Number(value) : null,
+        value: value ? parseEther(value.toString()) : null,
         status: "sent" as const,
         timestamp: metadata.blockTimestamp,
       })
@@ -240,7 +251,7 @@ export const getTransactions = async (
         from: getAddress(from),
         to: to ? getAddress(to) : null,
         hash,
-        value: value ? Number(value) : null,
+        value: value ? parseEther(value.toString()) : null,
         status: "received" as const,
         timestamp: metadata.blockTimestamp,
       })

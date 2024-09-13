@@ -1,11 +1,17 @@
 "use client"
 
-import React, { createContext, useContext, useEffect, useReducer } from "react"
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+} from "react"
 import { useWallets } from "@/providers/wallet-provider"
 import { Address } from "viem"
 
 import { Transaction } from "@/types/web3"
-import { getTransactions } from "@/lib/web3"
+import { getTransactions, watchMinedTransactions } from "@/lib/web3"
 
 type TransactionsState = {
   transactions: { [key: Address]: Transaction[] }
@@ -20,6 +26,10 @@ type TransactionsAction =
     }
   | { type: "SET_FETCHING_TRANSACTIONS" }
   | { type: "SET_ERROR"; payload: string }
+  | {
+      type: "ADD_TRANSACTION"
+      payload: { address: Address; transaction: Transaction }
+    }
 
 type TransactionsContextType = TransactionsState & {
   dispatch: React.Dispatch<TransactionsAction>
@@ -62,6 +72,19 @@ function transactionsReducer(
         loading: false,
         error: action.payload,
       }
+    case "ADD_TRANSACTION":
+      return {
+        ...state,
+        transactions: {
+          ...state.transactions,
+          [action.payload.address]: [
+            action.payload.transaction,
+            ...(state.transactions[action.payload.address] || []).filter(
+              (tx) => tx.hash !== action.payload.transaction.hash
+            ),
+          ],
+        },
+      }
     default:
       return state
   }
@@ -71,13 +94,16 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const {
+    selectAccount,
     state: { selectedAccount },
   } = useWallets()
   const [state, dispatch] = useReducer(transactionsReducer, initialState)
+  const unwatchRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     const fetchTransactions = async () => {
       if (selectedAccount?.address) {
+        // console.log("fetching transactions", selectedAccount.address)
         dispatch({ type: "SET_FETCHING_TRANSACTIONS" })
         try {
           const transactions = await getTransactions(selectedAccount.address)
@@ -89,6 +115,27 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
               transactions,
             },
           })
+
+          // Unwatch previous listener if exists
+          if (unwatchRef.current) {
+            unwatchRef.current()
+          }
+
+          // Set up new listener
+          unwatchRef.current = watchMinedTransactions(
+            selectedAccount.address,
+            (tx) => {
+              console.log("New mined transaction", tx)
+              dispatch({
+                type: "ADD_TRANSACTION",
+                payload: {
+                  address: selectedAccount.address,
+                  transaction: tx,
+                },
+              })
+              selectAccount(selectedAccount)
+            }
+          )
         } catch (error) {
           dispatch({
             type: "SET_ERROR",
@@ -97,8 +144,14 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     }
-
     fetchTransactions()
+
+    // Cleanup function to unwatch when component unmounts or selectedAccount changes
+    return () => {
+      if (unwatchRef.current) {
+        unwatchRef.current()
+      }
+    }
   }, [selectedAccount?.address])
 
   return (

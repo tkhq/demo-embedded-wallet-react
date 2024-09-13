@@ -8,10 +8,6 @@ import {
   useReducer,
 } from "react"
 import {
-  getWallet,
-  getWalletsWithAccounts as serverGetWalletsWithAccounts,
-} from "@/actions/turnkey"
-import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultEthereumAccountAtIndex,
   TurnkeyBrowserClient,
@@ -91,6 +87,7 @@ async function getWalletsWithAccounts(
           return {
             ...account,
             address: getAddress(address),
+            // Balance is initialized to undefined so that it can be fetched lazily on account selection
             balance: undefined,
           }
         })

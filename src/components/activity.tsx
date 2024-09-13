@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
+import { formatEther } from "viem"
 
 import type { Transaction } from "@/types/web3"
-import { cn } from "@/lib/utils"
-import { getTransactions, watchPendingTransactions } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -21,46 +21,30 @@ import {
 import { ScrollArea } from "./ui/scroll-area"
 
 export default function Activity() {
-  const [transactions, setTransactions] = useState<Transaction[]>([])
-
+  const { transactions: allTransactions } = useTransactions()
   const { ethPrice } = useTokenPrice()
   const { state } = useWallets()
   const { selectedAccount } = state
-  const [tableHeight, setTableHeight] = useState<number | null>(null)
-  const tableRef = useRef<HTMLDivElement>(null)
+
+  const [transactions, setTransactions] = useState<Transaction[]>([])
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (selectedAccount?.address) {
-        const transactions = await getTransactions(selectedAccount?.address)
-        setTransactions(transactions)
-        // watchPendingTransactions(
-        //   selectedAccount?.address,
-        //   (tx: Transaction) => {
-        //     console.log("pending tx", tx)
-        //     // setTransactions((prev) => [...prev, tx])
-        //   }
-        // )
+      if (
+        selectedAccount?.address &&
+        allTransactions[selectedAccount.address]
+      ) {
+        console.log(
+          "activity fetchTransactions",
+          allTransactions,
+          selectedAccount?.address,
+          allTransactions[selectedAccount.address]
+        )
+        setTransactions(allTransactions[selectedAccount.address])
       }
     }
     fetchTransactions()
-  }, [selectedAccount?.address])
-
-  useEffect(() => {
-    const updateTableHeight = () => {
-      if (tableRef.current) {
-        const height = tableRef.current.scrollHeight
-        setTableHeight(Math.min(height, 450))
-      }
-    }
-
-    updateTableHeight()
-    window.addEventListener("resize", updateTableHeight)
-
-    return () => {
-      window.removeEventListener("resize", updateTableHeight)
-    }
-  }, [transactions])
+  }, [allTransactions, selectedAccount])
 
   return (
     <Card>
@@ -68,13 +52,7 @@ export default function Activity() {
         <CardTitle>Activity</CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea
-          className={cn(
-            "w-full rounded-md",
-            tableHeight ? `h-[${tableHeight}px]` : ""
-          )}
-          ref={tableRef}
-        >
+        <ScrollArea className="flex max-h-[450px] w-full flex-col overflow-y-auto rounded-md">
           <Table>
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
@@ -99,7 +77,7 @@ export default function Activity() {
                         {transaction.status}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="p-1 text-xs md:p-4 md:text-sm">
                       {new Date(transaction.timestamp).toLocaleString()}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
@@ -107,11 +85,19 @@ export default function Activity() {
                       {transaction.from.slice(-4)}
                     </TableCell>
                     <TableCell>
-                      <div>{transaction.value || 0} ETH</div>
+                      <div>
+                        {transaction.value ? formatEther(transaction.value) : 0}{" "}
+                        <span className="text-xs text-muted-foreground">
+                          ETH
+                        </span>
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         $
                         {transaction.value
-                          ? (transaction.value * (ethPrice ?? 0)).toFixed(2)
+                          ? (
+                              parseFloat(formatEther(transaction.value)) *
+                              (ethPrice ?? 0)
+                            ).toFixed(2)
                           : 0}
                       </div>
                     </TableCell>
