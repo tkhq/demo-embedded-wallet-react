@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
@@ -9,6 +9,7 @@ import { formatEther } from "viem"
 import type { Transaction } from "@/types/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -21,7 +22,7 @@ import {
 import { ScrollArea } from "./ui/scroll-area"
 
 export default function Activity() {
-  const { transactions: allTransactions } = useTransactions()
+  const { transactions: allTransactions, loading } = useTransactions()
   const { ethPrice } = useTokenPrice()
   const { state } = useWallets()
   const { selectedAccount } = state
@@ -53,12 +54,31 @@ export default function Activity() {
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>From</TableHead>
+                <TableHead>To</TableHead>
                 <TableHead>Amount</TableHead>
               </TableRow>
             </TableHeader>
 
             <TableBody>
-              {transactions.length > 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-24" />
+                  </TableCell>
+                </TableRow>
+              ) : transactions.length > 0 ? (
                 transactions.map((transaction) => (
                   <TableRow key={transaction.hash}>
                     <TableCell>
@@ -77,6 +97,10 @@ export default function Activity() {
                     <TableCell className="font-mono text-xs">
                       {transaction.from.slice(0, 6)}...
                       {transaction.from.slice(-4)}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">
+                      {transaction?.to?.slice(0, 6)}...
+                      {transaction?.to?.slice(-4)}
                     </TableCell>
                     <TableCell>
                       <div>
@@ -99,7 +123,7 @@ export default function Activity() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell className="text-center" colSpan={4}>
+                  <TableCell className="text-center" colSpan={5}>
                     No transactions found
                   </TableCell>
                 </TableRow>

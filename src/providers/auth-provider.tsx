@@ -200,17 +200,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         // Create a new sub organization for the user
         if (encodedChallenge && attestation) {
-          const { subOrg } = await createUserSubOrg({
+          const { subOrg, user } = await createUserSubOrg({
             email: email as Email,
             passkey: {
               challenge: encodedChallenge,
               attestation,
             },
           })
+
           // New sub organization created, with passkey authenticator,
           // redirect to login page to login with passkey
-          if (subOrg) {
-            router.push("/login")
+          if (subOrg && user) {
+            const org = {
+              organizationId: subOrg.subOrganizationId,
+              organizationName: "",
+            }
+            const currentUser: User = {
+              userId: user.userId,
+              username: user.userName,
+              organization: org,
+            }
+            localStorage.setItem(
+              "@turnkey/current_user",
+              JSON.stringify(currentUser)
+            )
+            router.push("/dashboard")
           }
         }
       }

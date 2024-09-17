@@ -65,17 +65,23 @@ export const watchMinedTransactions = (
       includeRemoved: true,
       hashesOnly: false,
     },
-    (tx: AlchemyMinedTransaction) => {
-      const transaction: Transaction = {
-        hash: tx.transaction.hash,
-        blockNumber: parseInt(tx.transaction.blockNumber, 16),
-        value: BigInt(tx.transaction.value),
-        from: tx.transaction.from,
-        to: tx.transaction.to,
-        status: tx.removed ? "failed" : "received",
+    ({ transaction }: AlchemyMinedTransaction) => {
+      // Convert addresses to checksummed addresses before comparison
+      const { from, to } = {
+        from: getAddress(transaction.from),
+        to: getAddress(transaction.to),
+      }
+      const txn: Transaction = {
+        hash: transaction.hash,
+        blockNumber: parseInt(transaction.blockNumber, 16),
+        value: BigInt(transaction.value),
+        from,
+        to,
+        status: from === address ? "sent" : "received",
         timestamp: new Date().toISOString(),
       }
-      callback?.(transaction)
+
+      callback?.(txn)
     }
   )
   return () => {
@@ -122,16 +128,16 @@ export const watchPendingTransactions = (
 //   address: Address,
 //   callback: (tx: Transaction) => void
 // ) => {
-//   const publicClient = getPublicClient()
-//   const unwatch = publicClient.watchPendingTransactions({
-//     onTransactions: (hashes) => console.log(hashes),
-//   })
+//   // const publicClient = getPublicClient()
+//   // const unwatch = publicClient.watchPendingTransactions({
+//   //   onTransactions: (hashes) => console.log(hashes),
+//   // })
 
 //   console.log("watching pending transactions for", address)
 //   alchemy.ws.on(
 //     {
 //       method: AlchemySubscription.PENDING_TRANSACTIONS,
-//       // fromAddress: address,
+//       fromAddress: address,
 //     },
 //     (tx) => callback(tx)
 //   )

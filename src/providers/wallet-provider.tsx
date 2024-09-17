@@ -7,16 +7,20 @@ import {
   useEffect,
   useReducer,
 } from "react"
+import { server } from "@/actions"
 import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   defaultEthereumAccountAtIndex,
   TurnkeyBrowserClient,
 } from "@turnkey/sdk-browser"
 import { useTurnkey } from "@turnkey/sdk-react"
+import { useLocalStorage } from "usehooks-ts"
 import { getAddress } from "viem"
 
-import { Account, Wallet } from "@/types/turnkey"
+import { Account, PreferredWallet, Wallet } from "@/types/turnkey"
+import { PREFERRED_WALLET_KEY } from "@/lib/constants"
 import { getBalance } from "@/lib/web3"
+import { useUser } from "@/hooks/use-user"
 
 interface WalletsState {
   loading: boolean
@@ -33,6 +37,7 @@ type Action =
   | { type: "SET_SELECTED_WALLET"; payload: Wallet }
   | { type: "SET_SELECTED_ACCOUNT"; payload: Account }
   | { type: "ADD_WALLET"; payload: Wallet }
+  | { type: "ADD_ACCOUNT"; payload: Account }
 
 const WalletsContext = createContext<
   | {
@@ -60,6 +65,40 @@ function walletsReducer(state: WalletsState, action: Action): WalletsState {
       return { ...state, selectedAccount: action.payload }
     case "ADD_WALLET":
       return { ...state, wallets: [...state.wallets, action.payload] }
+    case "ADD_ACCOUNT":
+      if (state.selectedWallet) {
+        const updatedWallets = state.wallets.map((wallet) => {
+          if (wallet.walletId === state.selectedWallet?.walletId) {
+            // Check if the account already exists in the wallet
+            const accountExists = wallet.accounts.some(
+              (account) => account.address === action.payload.address
+            )
+            // If the account does not exist, add it to the wallet's accounts
+            if (!accountExists) {
+              return {
+                ...wallet,
+                accounts: [...wallet.accounts, action.payload],
+              }
+            }
+          }
+          return wallet
+        })
+        // Find the updated selected wallet
+        const selectedWallet = updatedWallets.find(
+          (wallet) => wallet.walletId === state.selectedWallet?.walletId
+        )
+        return {
+          ...state,
+          wallets: updatedWallets,
+          selectedWallet: selectedWallet
+            ? {
+                ...selectedWallet,
+                accounts: [...selectedWallet.accounts, action.payload],
+              }
+            : state.selectedWallet,
+        }
+      }
+      return state
     default:
       return state
   }
@@ -74,7 +113,8 @@ const initialState: WalletsState = {
 }
 
 async function getWalletsWithAccounts(
-  browserClient: TurnkeyBrowserClient
+  browserClient: TurnkeyBrowserClient,
+  organizationId: string
 ): Promise<Wallet[]> {
   const { wallets } = await browserClient.getWallets()
   return await Promise.all(
@@ -82,17 +122,27 @@ async function getWalletsWithAccounts(
       const { accounts } = await browserClient.getWalletAccounts({
         walletId: wallet.walletId,
       })
+
       const accountsWithBalance = await Promise.all(
         accounts.map(async ({ address, ...account }) => {
-          return {
-            ...account,
-            address: getAddress(address),
-            // Balance is initialized to undefined so that it can be fetched lazily on account selection
-            balance: undefined,
+          // Ensure the account's organizationId matches the provided organizationId
+          if (account.organizationId === organizationId) {
+            return {
+              ...account,
+              address: getAddress(address),
+              // Balance is initialized to undefined so that it can be fetched lazily on account selection
+              balance: undefined,
+            }
           }
+          return null
         })
       )
-      return { ...wallet, accounts: accountsWithBalance }
+      // Filter out any null accounts
+      const validAccounts = accountsWithBalance.filter(
+        (account) => account !== null
+      )
+
+      return { ...wallet, accounts: validAccounts }
     })
   )
 }
@@ -103,23 +153,61 @@ async function getWalletsWithAccounts(
 export function WalletsProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(walletsReducer, initialState)
   const { getActiveClient, passkeyClient, turnkey } = useTurnkey()
+  const { user } = useUser()
+  const [preferredWallet, setPreferredWallet] =
+    useLocalStorage<PreferredWallet>(PREFERRED_WALLET_KEY, {
+      userId: "",
+      walletId: "",
+    })
 
   useEffect(() => {
     // @todo - ensure that we don't fetch wallets more than once
     // This should only run at initial page load
     const fetchWallets = async () => {
+      if (!user?.organization?.organizationId) {
+        return
+      }
       dispatch({ type: "SET_LOADING", payload: true })
       try {
         const browserClient = await turnkey?.currentUserSession()
         if (browserClient) {
-          const wallets = await getWalletsWithAccounts(browserClient)
+          const wallets = await getWalletsWithAccounts(
+            browserClient,
+            user?.organization?.organizationId
+          )
           dispatch({ type: "SET_WALLETS", payload: wallets })
           if (wallets.length > 0) {
-            dispatch({ type: "SET_SELECTED_WALLET", payload: wallets[0] })
-            dispatch({
-              type: "SET_SELECTED_ACCOUNT",
-              payload: wallets[0].accounts[0],
-            })
+            // If the user has a preferred wallet, select it
+            if (preferredWallet.userId && preferredWallet.walletId) {
+              const wallet = wallets.find(
+                (wallet) =>
+                  wallet.walletId === preferredWallet.walletId &&
+                  user?.userId === preferredWallet.userId
+              )
+
+              if (wallet) {
+                selectWallet(wallet)
+              }
+              // Preferred wallet not found, select the first wallet
+              selectWallet(wallets[0])
+            } else {
+              // If the user does not have a preferred wallet, select the first wallet
+              selectWallet(wallets[0])
+            }
+          }
+        } else {
+          const currentUser = await turnkey?.getCurrentUser()
+          if (currentUser?.organization.organizationId) {
+            // This case occurs when the user signs up with a new passkey; since a read-only session is not created for new passkey sign-ups,
+            // we need to fetch the wallets from the server
+
+            const wallets = await server.getWalletsWithAccounts(
+              currentUser?.organization.organizationId
+            )
+            dispatch({ type: "SET_WALLETS", payload: wallets })
+            if (wallets.length > 0) {
+              selectWallet(wallets[0])
+            }
           }
         }
       } catch (error) {
@@ -129,7 +217,7 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
       }
     }
     fetchWallets()
-  }, [getActiveClient])
+  }, [getActiveClient, user])
 
   useEffect(() => {
     if (state.selectedWallet) {
@@ -140,24 +228,34 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
   const newWalletAccount = async () => {
     dispatch({ type: "SET_LOADING", payload: true })
     try {
-      const browserClient = await turnkey?.currentUserSession()
-      if (passkeyClient && state.selectedWallet && browserClient) {
+      const activeClient = await getActiveClient()
+      if (state.selectedWallet && activeClient) {
         const newAccount = defaultEthereumAccountAtIndex(
           state.selectedWallet.accounts.length
         )
 
-        const response = await passkeyClient.createWalletAccounts({
+        const response = await activeClient.createWalletAccounts({
           walletId: state.selectedWallet.walletId,
           accounts: [newAccount],
         })
 
-        if (response) {
-          // @todo - instead of fetching all wallets, we should add the new wallet account to the existing list
-          const wallets = await getWalletsWithAccounts(browserClient)
-          dispatch({ type: "SET_WALLETS", payload: wallets })
-          if (wallets.length > 0) {
-            dispatch({ type: "SET_SELECTED_WALLET", payload: wallets[0] })
+        if (response && user?.organization.organizationId) {
+          const account: Account = {
+            ...newAccount,
+            organizationId: user?.organization.organizationId,
+            walletId: state.selectedWallet?.walletId,
+            createdAt: {
+              seconds: new Date().toISOString(),
+              nanos: new Date().toISOString(),
+            },
+            updatedAt: {
+              seconds: new Date().toISOString(),
+              nanos: new Date().toISOString(),
+            },
+            address: getAddress(response.addresses[0]),
+            balance: undefined,
           }
+          dispatch({ type: "ADD_ACCOUNT", payload: account })
         }
       }
     } catch (error) {
@@ -179,26 +277,12 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
           walletName: walletName || "New Wallet",
           accounts: DEFAULT_ETHEREUM_ACCOUNTS,
         })
-        if (walletId) {
-          const browserClient = await turnkey?.currentUserSession()
-          if (browserClient) {
-            const [{ wallet }, accounts] = await Promise.all([
-              browserClient.getWallet({ walletId }),
-              browserClient
-                .getWalletAccounts({ walletId })
-                .then(({ accounts }) =>
-                  accounts.map(({ address, ...account }) => {
-                    return {
-                      ...account,
-                      address: getAddress(address),
-                      balance: undefined,
-                    }
-                  })
-                ),
-            ])
-            const newWallet: Wallet = { ...wallet, accounts }
-            dispatch({ type: "ADD_WALLET", payload: newWallet })
-          }
+        if (walletId && user?.organization.organizationId) {
+          const wallet = await server.getWallet(
+            walletId,
+            user?.organization.organizationId
+          )
+          dispatch({ type: "ADD_WALLET", payload: wallet })
         }
       }
     } catch (error) {
@@ -210,6 +294,10 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
 
   const selectWallet = (wallet: Wallet) => {
     dispatch({ type: "SET_SELECTED_WALLET", payload: wallet })
+    setPreferredWallet({
+      userId: user?.userId || "",
+      walletId: wallet.walletId,
+    })
   }
 
   const selectAccount = async (account: Account) => {

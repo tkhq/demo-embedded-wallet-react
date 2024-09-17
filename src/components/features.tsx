@@ -20,6 +20,7 @@ export default function Features() {
           No need to remember a password or seed phrase. Authentication methods
           include email, passkeys,{" "}
           <Link
+            target="_blank"
             className=" text-white underline underline-offset-4"
             href="https://docs.turnkey.com/passkeys/introduction"
           >
@@ -31,6 +32,7 @@ export default function Features() {
       <Feature title="Secure" icon={<ShieldCheck />}>
         Scalable, institutional-grade security. View our security documentation{" "}
         <Link
+          target="_blank"
           className=" text-white underline underline-offset-4"
           href="https://docs.turnkey.com/category/security"
         >
@@ -42,6 +44,7 @@ export default function Features() {
       <Feature title="Open-source" icon={<GitFork />}>
         Curious about how this is built? Dive into the code on{" "}
         <Link
+          target="_blank"
           className=" text-white underline underline-offset-4"
           href="https://github.com/tkhq/demo-embedded-wallet"
         >

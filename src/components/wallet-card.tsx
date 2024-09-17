@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { CopyIcon, HandCoins, Upload } from "lucide-react"
+import { CopyIcon, Download, HandCoins, Upload } from "lucide-react"
 import { toast } from "sonner"
 import { formatEther } from "viem"
 
@@ -13,13 +13,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 import ExportWalletDialog from "./export-wallet"
+import ImportWalletDialog from "./import-wallet"
 import { Skeleton } from "./ui/skeleton"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "./ui/tooltip"
 
 export default function WalletCard() {
   const { ethPrice } = useTokenPrice()
@@ -41,6 +36,8 @@ export default function WalletCard() {
 
   const handleExportWallet = () => {}
 
+  const handleImportWallet = () => {}
+
   useEffect(() => {
     if (ethPrice && selectedAccount?.balance !== undefined) {
       const balanceInEther = formatEther(selectedAccount?.balance)
@@ -49,27 +46,39 @@ export default function WalletCard() {
   }, [ethPrice, selectedAccount?.balance])
 
   return (
-    <Card className="w-[300px]  ">
+    // <Card className="w-[350px] bg-gradient-to-r from-[#3f3cff] to-[#ecb7d7] ">
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
+        <CardTitle className=" font-medium">
           {selectedWallet?.walletName || (
             <Skeleton className="h-4 w-20 bg-muted-foreground/50" />
           )}
         </CardTitle>
 
-        <ExportWalletDialog>
+        <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
-            size="icon"
-            className="h-4 w-4"
-            onClick={handleExportWallet}
+            onClick={handleFundWallet}
+            className="h-min cursor-pointer "
+            // className="mt-2 h-min cursor-pointer bg-black/40 text-white "
           >
-            <Upload className="h-4 w-4" />{" "}
+            <HandCoins className="mr-2 h-4 w-4" />
+            Fund wallet
           </Button>
-        </ExportWalletDialog>
+          <ExportWalletDialog>
+            <Button variant="outline" onClick={handleExportWallet}>
+              <Upload className="mr-2 h-4 w-4" /> Export
+            </Button>
+          </ExportWalletDialog>
+          <ImportWalletDialog>
+            <Button variant="outline" onClick={handleImportWallet}>
+              <Download className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          </ImportWalletDialog>
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-xs ">
+      <CardContent className="space-y-1">
+        <div className="text-sm">
           {selectedAccount?.address ? (
             <div
               onClick={handleCopyAddress}
@@ -84,7 +93,7 @@ export default function WalletCard() {
         </div>
         <div className="text-4xl font-bold">
           ${usdAmount?.toFixed(2) || "0.00"}
-          <span className="text-sm text-muted-foreground">USD</span>
+          <span className="ml-1 text-sm text-muted-foreground">USD</span>
         </div>
         <div className="text-sm text-muted-foreground">
           {selectedAccount?.balance
@@ -94,14 +103,6 @@ export default function WalletCard() {
             : "0"}{" "}
           ETH
         </div>
-        <Button
-          onClick={handleFundWallet}
-          variant="link"
-          className="mt-2 h-min cursor-pointer p-0 text-sm text-muted-foreground"
-        >
-          <HandCoins className="mr-2 h-4 w-4" />
-          Fund wallet
-        </Button>
       </CardContent>
     </Card>
   )

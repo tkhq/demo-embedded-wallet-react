@@ -137,21 +137,37 @@ const icons = {
     <svg
       width="100%"
       height="100%"
+      viewBox="0 0 32 32"
+      fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
       {...props}
     >
-      <g fill="none" fillRule="evenodd">
-        <circle cx="16" cy="16" r="16" fill="#627EEA" />
-        <g fill="#FFF" fillRule="nonzero">
-          <path fillOpacity=".602" d="M16.498 4v8.87l7.497 3.35z" />
-          <path d="M16.498 4L9 16.22l7.498-3.35z" />
-          <path fillOpacity=".602" d="M16.498 21.968v6.027L24 17.616z" />
-          <path d="M16.498 27.995v-6.028L9 17.616z" />
-          <path fillOpacity=".2" d="M16.498 20.573l7.497-4.353-7.497-3.348z" />
-          <path fillOpacity=".602" d="M9 16.22l7.498 4.353v-7.701z" />
-        </g>
-      </g>
+      <path
+        d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32Z"
+        fill="#627EEA"
+      />
+      <path
+        d="M16.498 4V12.87L23.995 16.22L16.498 4Z"
+        fill="white"
+        fillOpacity="0.602"
+      />
+      <path d="M16.498 4L9 16.22L16.498 12.87V4Z" fill="white" />
+      <path
+        d="M16.498 21.968V27.995L24 17.616L16.498 21.968Z"
+        fill="white"
+        fillOpacity="0.602"
+      />
+      <path d="M16.498 27.995V21.967L9 17.616L16.498 27.995Z" fill="white" />
+      <path
+        d="M16.498 20.573L23.995 16.22L16.498 12.872V20.573Z"
+        fill="white"
+        fillOpacity="0.2"
+      />
+      <path
+        d="M9 16.22L16.498 20.573V12.872L9 16.22Z"
+        fill="white"
+        fillOpacity="0.602"
+      />
     </svg>
   ),
 }

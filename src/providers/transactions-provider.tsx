@@ -8,7 +8,7 @@ import React, {
   useRef,
 } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { Address } from "viem"
+import { Address, Hex, TransactionRequest } from "viem"
 
 import { Transaction } from "@/types/web3"
 import { getTransactions, watchMinedTransactions } from "@/lib/web3"
@@ -32,7 +32,9 @@ type TransactionsAction =
     }
 
 type TransactionsContextType = TransactionsState & {
-  dispatch: React.Dispatch<TransactionsAction>
+  addPendingTransaction: (
+    transaction: TransactionRequest & { hash: Hex }
+  ) => void
 }
 
 const TransactionsContext = createContext<TransactionsContextType | undefined>(
@@ -41,7 +43,7 @@ const TransactionsContext = createContext<TransactionsContextType | undefined>(
 
 const initialState: TransactionsState = {
   transactions: {},
-  loading: false,
+  loading: true,
   error: null,
 }
 
@@ -152,8 +154,32 @@ export const TransactionsProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [selectedAccount?.address])
 
+  const addPendingTransaction = ({
+    hash,
+    value,
+    from,
+    to,
+  }: TransactionRequest & { hash: Hex }) => {
+    if (!selectedAccount?.address) return
+    dispatch({
+      type: "ADD_TRANSACTION",
+      payload: {
+        address: selectedAccount?.address,
+        transaction: {
+          hash,
+          value: value ?? null,
+          from,
+          to: to ?? null,
+          status: "pending",
+          blockNumber: null,
+          timestamp: new Date().toISOString(),
+        },
+      },
+    })
+  }
+
   return (
-    <TransactionsContext.Provider value={{ ...state, dispatch }}>
+    <TransactionsContext.Provider value={{ ...state, addPendingTransaction }}>
       {children}
     </TransactionsContext.Provider>
   )

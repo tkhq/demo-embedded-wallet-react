@@ -1,32 +1,23 @@
+import React from "react"
 import { Loader } from "lucide-react"
 
 import { Button, type ButtonProps } from "./button"
 
-interface LoadingButton {
-  onClick: () => void
-  className?: string
+interface LoadingButtonProps extends ButtonProps {
   loading: boolean
-  children: React.ReactNode
-  variant?: ButtonProps["variant"]
 }
 
-export function LoadingButton({
-  onClick,
-  className,
-  loading,
-  children,
-  variant,
-}: LoadingButton) {
-  return (
-    <Button
-      type="button"
-      className={`w-full font-semibold ${className}`}
-      onClick={onClick}
-      disabled={loading}
-      variant={variant}
-    >
-      {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-      {children}
-    </Button>
-  )
-}
+const LoadingButton = React.forwardRef<HTMLButtonElement, LoadingButtonProps>(
+  ({ loading, children, ...props }, ref) => {
+    return (
+      <Button {...props} ref={ref}>
+        {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+        {children}
+      </Button>
+    )
+  }
+)
+
+LoadingButton.displayName = "LoadingButton"
+
+export { LoadingButton }

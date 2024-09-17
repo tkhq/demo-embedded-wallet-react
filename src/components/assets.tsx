@@ -15,6 +15,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { Icons } from "./icons"
+
 export default function Assets() {
   const { state } = useWallets()
   const { ethPrice } = useTokenPrice()
@@ -35,40 +37,31 @@ export default function Assets() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {selectedAccount?.balance &&
-            Number(formatEther(selectedAccount?.balance)) > 0 ? (
-              <TableRow>
-                <TableCell className="font-medium">
-                  <div className="flex items-center space-x-2">
-                    {/* <Icons.ethereum className="h-2 w-2" /> */}
-                    <span>Ethereum (Sepolia)</span>
-                  </div>
-                </TableCell>
-                <TableCell className="font-mono text-xs">
-                  {selectedAccount?.address &&
-                    truncateAddress(selectedAccount?.address)}
-                </TableCell>
-                <TableCell>
-                  {selectedAccount?.balance &&
-                    parseFloat(
-                      Number(formatEther(selectedAccount?.balance)).toFixed(8)
-                    ).toString()}
-                </TableCell>
-                <TableCell>
-                  $
-                  {(
-                    Number(formatEther(selectedAccount?.balance ?? BigInt(0))) *
-                    (ethPrice || 0)
-                  ).toFixed(2)}
-                </TableCell>
-              </TableRow>
-            ) : (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center">
-                  No assets found
-                </TableCell>
-              </TableRow>
-            )}
+            <TableRow>
+              <TableCell className="font-medium">
+                <div className="flex items-center space-x-2">
+                  <Icons.ethereum className="h-6 w-6" />
+                  <span>Ethereum (Sepolia)</span>
+                </div>
+              </TableCell>
+              <TableCell className="font-mono text-xs">
+                {selectedAccount?.address &&
+                  truncateAddress(selectedAccount?.address)}
+              </TableCell>
+              <TableCell>
+                {selectedAccount?.balance &&
+                  parseFloat(
+                    Number(formatEther(selectedAccount?.balance)).toFixed(8)
+                  ).toString()}
+              </TableCell>
+              <TableCell>
+                $
+                {(
+                  Number(formatEther(selectedAccount?.balance ?? BigInt(0))) *
+                  (ethPrice || 0)
+                ).toFixed(2)}
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </CardContent>

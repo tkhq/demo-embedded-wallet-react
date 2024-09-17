@@ -11,8 +11,8 @@ interface LandingLayoutProps {
 
 export default function LandingLayout({ children }: LandingLayoutProps) {
   return (
-    <main className="grid h-screen md:grid-cols-[2fr,3fr]">
-      <div className="relative hidden md:block">
+    <main className="grid h-screen lg:grid-cols-[2fr,3fr]">
+      <div className="relative hidden lg:block">
         <Image
           className="absolute -z-10 h-full w-full object-cover dark:opacity-65"
           src={gradient}
@@ -21,7 +21,6 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
         <Features />
       </div>
       {children}
-      {/* <ModeToggle className="absolute right-4 top-4" /> */}
     </main>
   )
 }

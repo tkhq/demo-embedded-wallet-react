@@ -25,66 +25,6 @@ const client = new TurnkeyServerClient({
   stamper,
 })
 
-type EmailParam = { email: Email }
-type PublicKeyParam = { publicKey: string }
-type UsernameParam = { username: string }
-type OidcTokenParam = { oidcToken: string }
-
-export function getSubOrgId(param: EmailParam): Promise<string>
-export function getSubOrgId(param: PublicKeyParam): Promise<string>
-export function getSubOrgId(param: UsernameParam): Promise<string>
-export function getSubOrgId(param: OidcTokenParam): Promise<string>
-
-export async function getSubOrgId(
-  param: EmailParam | PublicKeyParam | UsernameParam | OidcTokenParam
-): Promise<string> {
-  let filterType: string
-  let filterValue: string
-
-  if ("email" in param) {
-    filterType = "EMAIL"
-    filterValue = param.email
-  } else if ("publicKey" in param) {
-    filterType = "PUBLIC_KEY"
-    filterValue = param.publicKey
-  } else if ("username" in param) {
-    filterType = "USERNAME"
-    filterValue = param.username
-  } else if ("oidcToken" in param) {
-    filterType = "OIDC_TOKEN"
-    filterValue = param.oidcToken
-  } else {
-    throw new Error("Invalid parameter")
-  }
-
-  const { organizationIds } = await client.getSubOrgIds({
-    organizationId: turnkeyConfig.organizationId,
-    filterType,
-    filterValue,
-  })
-
-  return organizationIds[0]
-}
-
-export const getSubOrgIdByEmail = async (email: Email) => {
-  return getSubOrgId({ email })
-}
-
-export const getSubOrgIdByPublicKey = async (publicKey: string) => {
-  return getSubOrgId({ publicKey })
-}
-
-export const getSubOrgIdByUsername = async (username: string) => {
-  return getSubOrgId({ username })
-}
-
-export const getUser = async (userId: string, subOrgId: string) => {
-  return client.getUser({
-    organizationId: subOrgId,
-    userId,
-  })
-}
-
 export const createUserSubOrg = async ({
   email,
   passkey,
@@ -196,6 +136,66 @@ export const initEmailAuth = async ({
   }
 }
 
+type EmailParam = { email: Email }
+type PublicKeyParam = { publicKey: string }
+type UsernameParam = { username: string }
+type OidcTokenParam = { oidcToken: string }
+
+export function getSubOrgId(param: EmailParam): Promise<string>
+export function getSubOrgId(param: PublicKeyParam): Promise<string>
+export function getSubOrgId(param: UsernameParam): Promise<string>
+export function getSubOrgId(param: OidcTokenParam): Promise<string>
+
+export async function getSubOrgId(
+  param: EmailParam | PublicKeyParam | UsernameParam | OidcTokenParam
+): Promise<string> {
+  let filterType: string
+  let filterValue: string
+
+  if ("email" in param) {
+    filterType = "EMAIL"
+    filterValue = param.email
+  } else if ("publicKey" in param) {
+    filterType = "PUBLIC_KEY"
+    filterValue = param.publicKey
+  } else if ("username" in param) {
+    filterType = "USERNAME"
+    filterValue = param.username
+  } else if ("oidcToken" in param) {
+    filterType = "OIDC_TOKEN"
+    filterValue = param.oidcToken
+  } else {
+    throw new Error("Invalid parameter")
+  }
+
+  const { organizationIds } = await client.getSubOrgIds({
+    organizationId: turnkeyConfig.organizationId,
+    filterType,
+    filterValue,
+  })
+
+  return organizationIds[0]
+}
+
+export const getSubOrgIdByEmail = async (email: Email) => {
+  return getSubOrgId({ email })
+}
+
+export const getSubOrgIdByPublicKey = async (publicKey: string) => {
+  return getSubOrgId({ publicKey })
+}
+
+export const getSubOrgIdByUsername = async (username: string) => {
+  return getSubOrgId({ username })
+}
+
+export const getUser = async (userId: string, subOrgId: string) => {
+  return client.getUser({
+    organizationId: subOrgId,
+    userId,
+  })
+}
+
 export async function getWalletsWithAccounts(
   organizationId: string
 ): Promise<Wallet[]> {
@@ -244,4 +244,23 @@ export const getWallet = async (
   ])
 
   return { ...wallet, accounts }
+}
+
+export const getAuthenticators = async (userId: string, subOrgId: string) => {
+  const { authenticators } = await client.getAuthenticators({
+    organizationId: subOrgId,
+    userId,
+  })
+  return authenticators
+}
+
+export const getAuthenticator = async (
+  authenticatorId: string,
+  subOrgId: string
+) => {
+  const { authenticator } = await client.getAuthenticator({
+    organizationId: subOrgId,
+    authenticatorId,
+  })
+  return authenticator
 }

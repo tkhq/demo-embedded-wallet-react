@@ -112,11 +112,7 @@ export default function Account() {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-min bg-background text-foreground">
         <DropdownMenuLabel className="dark flex w-full items-center gap-2">
-          <Avatar className="h-12 w-12 bg-muted  p-1">
-            {/* <AvatarFallback className="bg-transparent text-base font-semibold text-primary">
-              AD
-            </AvatarFallback> */}
-          </Avatar>
+          <Avatar className="h-12 w-12 bg-muted  p-1"></Avatar>
           <div className="flex flex-col">
             <span className=" font-semibold">{user?.username}</span>
             <span className="text-xs text-muted-foreground">
@@ -143,14 +139,16 @@ export default function Account() {
         {isNewWalletMode ? (
           <div className="space-y-2 px-2 py-1.5">
             <input
+              autoFocus
               type="text"
-              placeholder="Wallet name"
+              placeholder="Enter wallet name"
               value={newWalletName}
               onChange={(e) => setNewWalletName(e.target.value)}
               onKeyDown={(e) => e.stopPropagation()} // Prevent dropdown menu from handling key events
               className="w-full bg-transparent px-0 py-1 text-sm text-foreground placeholder-muted-foreground focus:outline-none"
             />
             <Button
+              disabled={!newWalletName}
               onClick={handleCreateWallet}
               variant="outline"
               className="w-full text-sm"
@@ -164,14 +162,10 @@ export default function Account() {
             <span>New Wallet</span>
           </DropdownMenuItem>
         )}
-        <DropdownMenuItem disabled>
-          <Download className="mr-2 h-4 w-4" />
-          <span>Import Wallet</span>
-        </DropdownMenuItem>
+
         <DropdownMenuSeparator />
         <DropdownMenuLabel className="flex items-center gap-2">
           <span>Accounts</span>
-          {/* <span className="text-xs text-muted-foreground">View all</span> */}
         </DropdownMenuLabel>
 
         {selectedWallet?.accounts.map((account) => (

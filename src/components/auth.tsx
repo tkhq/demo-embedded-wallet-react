@@ -51,7 +51,7 @@ export default function Auth() {
 
   return (
     <>
-      <Card className="mx-auto w-2/3 max-w-md">
+      <Card className="mx-auto w-5/6 sm:w-7/12 lg:w-2/3 lg:max-w-md">
         <CardHeader className="space-y-4">
           <Icons.turnkey className="h-16 w-full  stroke-0 py-2 dark:stroke-white" />
           <CardTitle className="text-center text-xl font-medium">
@@ -59,7 +59,7 @@ export default function Auth() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          <div className="flex flex-col gap-4">
             <div className="grid gap-2">
               <Input
                 id="email"
@@ -79,6 +79,7 @@ export default function Auth() {
             </LoadingButton>
 
             <LoadingButton
+              disabled={!email}
               variant="outline"
               className="w-full font-semibold"
               onClick={handleEmailLogin}

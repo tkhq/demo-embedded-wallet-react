@@ -17,6 +17,10 @@ export const turnkeyConfig = {
       url: "https://export.turnkey.com",
       containerId: "turnkey-export-iframe-container-id",
     },
+    import: {
+      url: "https://import.turnkey.com",
+      containerId: "turnkey-import-iframe-container-id",
+    },
   },
   passkey: {
     rpId: env.NEXT_PUBLIC_RP_ID || "localhost",

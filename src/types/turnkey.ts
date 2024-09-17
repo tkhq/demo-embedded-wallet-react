@@ -2,9 +2,7 @@ import { TurnkeyApiTypes, type TurnkeyClient } from "@turnkey/http"
 import { Turnkey } from "@turnkey/sdk-browser"
 import { Address } from "viem"
 
-export type Attestation = Parameters<
-  TurnkeyClient["createSubOrganization"]
->[0]["parameters"]["rootUsers"][0]["authenticators"][0]["attestation"]
+export type Attestation = TurnkeyApiTypes["v1Attestation"]
 
 export type Email = `${string}@${string}.${string}`
 
@@ -26,3 +24,8 @@ export type User = Awaited<ReturnType<Turnkey["getCurrentUser"]>> & {
 
 export type Authenticator =
   TurnkeyApiTypes["v1GetAuthenticatorsResponse"]["authenticators"][number]
+
+export type PreferredWallet = {
+  userId: string
+  walletId: string
+}

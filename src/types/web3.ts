@@ -2,7 +2,7 @@ import { Address, Hex } from "viem"
 
 export interface Transaction {
   hash: string
-  blockNumber: number
+  blockNumber: number | null
   value: bigint | null
   from: Address
   to: Address | null

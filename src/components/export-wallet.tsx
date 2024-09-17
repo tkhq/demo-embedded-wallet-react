@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useWallets } from "@/providers/wallet-provider"
-import { TurnkeyIframeClient } from "@turnkey/sdk-browser"
+import { type TurnkeyIframeClient } from "@turnkey/sdk-browser"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { Key, Loader, RectangleEllipsis } from "lucide-react"
 
@@ -28,7 +28,7 @@ export default function ExportWalletDialog({
 }) {
   const { state } = useWallets()
   const { selectedWallet, selectedAccount } = state
-  const { turnkey, getActiveClient } = useTurnkey()
+  const { turnkey, getActiveClient, authIframeClient } = useTurnkey()
   const { export: exportConfig } = turnkeyConfig.iFrame
   const [iframeClient, setIframeClient] = useState<TurnkeyIframeClient | null>(
     null
@@ -38,9 +38,10 @@ export default function ExportWalletDialog({
   const [injectResponse, setInjectResponse] = useState(false)
   const [selectedExportType, setSelectedExportType] = useState("seed-phrase")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (isDialogOpen) {
+    if (isDialogOpen && turnkey) {
       // Create a MutationObserver to watch for changes in the DOM
       const observer = new MutationObserver(() => {
         // If the iframe container is found, initialize the iframe and stop observing
@@ -58,7 +59,7 @@ export default function ExportWalletDialog({
       // Cleanup function to disconnect the observer when the dialog is closed
       return () => observer.disconnect()
     }
-  }, [isDialogOpen])
+  }, [isDialogOpen, turnkey])
 
   const initIframe = async () => {
     if (iframeContainerRef.current) {
@@ -74,10 +75,15 @@ export default function ExportWalletDialog({
   }
 
   const exportWallet = async () => {
+    // If we've already exported the wallet, close the dialog
     if (injectResponse) {
       setIsDialogOpen(false)
       setInjectResponse(false)
-    } else {
+      return
+    }
+
+    try {
+      setLoading(true)
       if (iframeClient && selectedWallet) {
         if (selectedExportType === "seed-phrase") {
           await exportSeedPhrase()
@@ -85,61 +91,63 @@ export default function ExportWalletDialog({
           await exportPrivateKey()
         }
       }
+    } catch (error) {
+      displayError(error)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const exportSeedPhrase = async () => {
     if (iframeClient && selectedWallet) {
-      try {
-        const activeClient = await getActiveClient()
-        setLoading(true)
-        const exportResponse = await activeClient?.exportWallet({
-          walletId: selectedWallet.walletId,
-          targetPublicKey: `${iframeClient?.iframePublicKey}`,
-        })
+      const activeClient = await getActiveClient()
 
-        if (exportResponse?.exportBundle) {
-          const currentUser = await turnkey?.getCurrentUser()
-          const response = await iframeClient?.injectWalletExportBundle(
-            exportResponse.exportBundle,
-            `${currentUser?.organization.organizationId}`
-          )
+      const exportResponse = await activeClient?.exportWallet({
+        walletId: selectedWallet.walletId,
+        targetPublicKey: `${iframeClient?.iframePublicKey}`,
+      })
 
-          setInjectResponse(response)
-        }
-      } catch (error) {
-        console.error("Export failed:", error)
-      } finally {
-        setLoading(false)
+      if (exportResponse?.exportBundle) {
+        const currentUser = await turnkey?.getCurrentUser()
+        const response = await iframeClient?.injectWalletExportBundle(
+          exportResponse.exportBundle,
+          `${currentUser?.organization.organizationId}`
+        )
+
+        setInjectResponse(response)
       }
     }
   }
 
   const exportPrivateKey = async () => {
     if (iframeClient && selectedAccount) {
-      try {
-        const activeClient = await getActiveClient()
-        setLoading(true)
-        const exportResponse = await activeClient?.exportWalletAccount({
-          address: selectedAccount.address,
-          targetPublicKey: `${iframeClient?.iframePublicKey}`,
-        })
-        if (exportResponse?.exportBundle) {
-          const currentUser = await turnkey?.getCurrentUser()
-          const response = await iframeClient?.injectKeyExportBundle(
-            exportResponse.exportBundle,
-            `${currentUser?.organization.organizationId}`
-          )
+      const activeClient = await getActiveClient()
 
-          setInjectResponse(response)
-        }
-      } catch (error) {
-        console.error("Export failed:", error)
-      } finally {
-        setLoading(false)
+      const exportResponse = await activeClient?.exportWalletAccount({
+        address: selectedAccount.address,
+        targetPublicKey: `${iframeClient?.iframePublicKey}`,
+      })
+      if (exportResponse?.exportBundle) {
+        const currentUser = await turnkey?.getCurrentUser()
+        const response = await iframeClient?.injectKeyExportBundle(
+          exportResponse.exportBundle,
+          `${currentUser?.organization.organizationId}`
+        )
+
+        setInjectResponse(response)
       }
     }
+  }
+
+  const displayError = (error: any) => {
+    if (
+      error?.message.includes(
+        "webauthn authenticator not found in organization"
+      )
+    ) {
+      setError("Unauthorized: Authenticator not found, please try again.")
+    }
+    console.log(error, { ...error })
   }
 
   return (
@@ -193,16 +201,25 @@ export default function ExportWalletDialog({
         >
           <div ref={iframeContainerRef} className="h-1/2" />
         </div>
-        <DialogFooter className="justify-center">
-          <Button
-            disabled={loading}
-            onClick={exportWallet}
-            type="submit"
-            className="w-full"
-          >
-            {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
-            {loading ? "Exporting..." : injectResponse ? "Done" : "Export"}
-          </Button>
+        <DialogFooter className="w-full">
+          <div className="flex w-full flex-col gap-2">
+            <div
+              className={cn("ml-1 text-xs font-medium text-destructive", {
+                hidden: !error,
+              })}
+            >
+              {error}
+            </div>
+            <Button
+              disabled={loading}
+              onClick={exportWallet}
+              type="submit"
+              className="w-full"
+            >
+              {loading && <Loader className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? "Exporting..." : injectResponse ? "Done" : "Export"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

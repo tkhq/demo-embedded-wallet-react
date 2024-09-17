@@ -41,9 +41,11 @@ const GoogleAuth = ({ loading }: { loading: boolean }) => {
       {nonce && (
         <GoogleLogin
           nonce={nonce}
-          containerProps={{ className: "w-full bg-white" }}
+          containerProps={{
+            className: "w-full bg-black flex justify-center ",
+          }}
           theme="filled_black"
-          width="500"
+          width="100%"
           onSuccess={onSuccess}
           useOneTap={false}
         />

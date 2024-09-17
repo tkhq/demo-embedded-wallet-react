@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useRef, useState } from "react"
+import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
 import { ChevronDown, ChevronRight, Copy } from "lucide-react"
@@ -31,6 +32,7 @@ export default function TransferDialog() {
   const { selectedAccount } = state
   const { ethPrice } = useTokenPrice()
   const { getActiveClient } = useTurnkey()
+  const { addPendingTransaction } = useTransactions()
 
   // Controls the dialog open/close state
   const [isOpen, setIsOpen] = useState(false)
@@ -57,6 +59,7 @@ export default function TransferDialog() {
   const [transactionRequest, setTransactionRequest] =
     useState<TransactionRequest | null>(null)
 
+  // Ensures that the form is valid before sending
   const [isValid, setIsValid] = useState(false)
 
   const [walletClient, setWalletClient] = useState<Awaited<
@@ -124,6 +127,10 @@ export default function TransferDialog() {
       const publicClient = getPublicClient()
       setIsOpen(false)
       const hash = await walletClient.sendTransaction(transactionRequest)
+      addPendingTransaction({
+        hash,
+        ...transactionRequest,
+      })
       const toastId = showTransactionToast({
         hash,
         title: "Sending transaction...",
@@ -153,6 +160,19 @@ export default function TransferDialog() {
   const handleBackToSendTab = () => {
     setCurrentView("send")
   }
+
+  const resetState = () => {
+    setCurrentView("send")
+    setEthAmount("")
+    setAmountUSD("0")
+    setTransactionRequest(null)
+  }
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetState()
+    }
+  }, [isOpen, currentView, selectedAction])
 
   const SendTab = () => {
     const spanRef = useRef<HTMLSpanElement>(null)

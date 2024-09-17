@@ -25,8 +25,7 @@ export default function AddPasskey({
   const [passkeyName, setPasskeyName] = useState("")
 
   const handleAddPasskey = async () => {
-    const currentUserSession = await turnkey?.currentUserSession()
-    if (!currentUserSession || !user) {
+    if (!user) {
       return
     }
 
@@ -34,6 +33,9 @@ export default function AddPasskey({
 
     const credential = await passkeyClient?.createUserPasskey({
       publicKey: {
+        rp: {
+          name: "Turnkey - Demo Embedded Wallet",
+        },
         user: {
           name: user?.username,
           displayName: user?.username,
