@@ -13,7 +13,7 @@ interface PasskeyItemProps {
   createdAt: Date
   onEdit: () => void
   onRemove: () => void
-  isRemovable: ConstrainBooleanParameters
+  isRemovable: boolean
 }
 
 export function PasskeyItem({
