@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export const truncateAddress = (
   address: string,
-  { prefix = 8, suffix = 6 }: { prefix?: number; suffix?: number } = {}
+  { prefix = 8, suffix = 4 }: { prefix?: number; suffix?: number } = {}
 ) => {
   return `${address.slice(0, prefix)}•••${address.slice(-suffix)}`
 }

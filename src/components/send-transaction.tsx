@@ -1,4 +1,4 @@
-import { ArrowLeft, Info } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import { formatEther, type TransactionRequest } from "viem"
 
 import { truncateAddress } from "@/lib/utils"
@@ -74,10 +74,7 @@ export default function SendTransaction({
         </div>
       </div>
 
-      <Button
-        className="w-full rounded-lg bg-blue-500 py-3 text-white hover:bg-blue-600"
-        onClick={handleSend}
-      >
+      <Button className="w-full  py-3" onClick={handleSend}>
         Send
       </Button>
     </div>

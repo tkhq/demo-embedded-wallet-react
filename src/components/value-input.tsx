@@ -31,11 +31,6 @@ export const ValueInput: React.FC<ValueInputProps> = ({
     e.stopPropagation()
     const newValue = e.target.value.replace(/[^0-9.]/g, "")
 
-    // Prevent '0' as the first character
-    if (newValue === "0") {
-      return
-    }
-
     // Allow '0' after the first character
     let finalValue = newValue
     if (newValue.length > 1 && newValue[0] === "0" && newValue[1] !== ".") {

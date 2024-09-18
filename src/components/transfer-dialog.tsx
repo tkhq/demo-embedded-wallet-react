@@ -4,7 +4,13 @@ import React, { useEffect, useRef, useState } from "react"
 import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { useTurnkey } from "@turnkey/sdk-react"
-import { ChevronDown, ChevronRight, Copy } from "lucide-react"
+import {
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+} from "lucide-react"
 import QRCode from "react-qr-code"
 import { formatEther, getAddress, parseEther, TransactionRequest } from "viem"
 
@@ -291,33 +297,18 @@ export default function TransferDialog() {
           </Button>
         </div>
       </div>
-
-      {/* <div className="flex items-start rounded-lg bg-[#2c2c2e] p-4">
-        <Info className="mr-2 mt-1 shrink-0 text-[#0a84ff]" size={20} />
-        <p className="text-sm">
-          This address can only receive Ethereum from Ethereum network. Don't
-          send ETH from other networks, any ERC-20s or NFTs, or it may result in
-          a loss of funds.
-        </p>
-      </div> */}
     </>
   )
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <div className="dark flex items-center justify-center gap-4">
-        <Button
-          onClick={() => handleSelect("send")}
-          variant="outline"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
+      <div className=" flex items-center justify-center gap-2">
+        <Button onClick={() => handleSelect("send")} variant="outline">
+          <ArrowUp className="mr-2 h-4 w-4" />
           Send
         </Button>
-        <Button
-          onClick={() => handleSelect("receive")}
-          variant="outline"
-          className="bg-primary text-primary-foreground hover:bg-primary/90"
-        >
+        <Button onClick={() => handleSelect("receive")} variant="outline">
+          <ArrowDown className="mr-2 h-4 w-4" />
           Receive
         </Button>
       </div>

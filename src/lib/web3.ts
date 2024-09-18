@@ -26,6 +26,7 @@ import type { AlchemyMinedTransaction, Transaction } from "@/types/web3"
 import { turnkeyConfig } from "@/config/turnkey"
 
 import { showTransactionToast } from "./toast"
+import { truncateAddress } from "./utils"
 
 let publicClient: PublicClient
 
@@ -173,7 +174,7 @@ export const fundWallet = async (address: Address, amount: string) => {
     const toastId = showTransactionToast({
       hash,
       title: "Funding wallet...",
-      description: "View your transaction on explorer",
+      description: `Sending ${amount} ETH to ${truncateAddress(address)}`,
       type: "loading",
     })
 

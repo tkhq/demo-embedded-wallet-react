@@ -10,10 +10,17 @@ import { truncateAddress } from "@/lib/utils"
 import { fundWallet } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 import ExportWalletDialog from "./export-wallet"
 import ImportWalletDialog from "./import-wallet"
+import TransferDialog from "./transfer-dialog"
 import { Skeleton } from "./ui/skeleton"
 
 export default function WalletCard() {
@@ -46,7 +53,6 @@ export default function WalletCard() {
   }, [ethPrice, selectedAccount?.balance])
 
   return (
-    // <Card className="w-[350px] bg-gradient-to-r from-[#3f3cff] to-[#ecb7d7] ">
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className=" font-medium">
@@ -55,26 +61,24 @@ export default function WalletCard() {
           )}
         </CardTitle>
 
-        <div className="flex items-center gap-2">
-          <Button
-            onClick={handleFundWallet}
-            className="h-min cursor-pointer "
-            // className="mt-2 h-min cursor-pointer bg-black/40 text-white "
-          >
+        <div className="hidden items-center gap-2 sm:flex">
+          <Button onClick={handleFundWallet} className="h-min cursor-pointer ">
             <HandCoins className="mr-2 h-4 w-4" />
             Fund wallet
           </Button>
-          <ExportWalletDialog>
-            <Button variant="outline" onClick={handleExportWallet}>
-              <Upload className="mr-2 h-4 w-4" /> Export
-            </Button>
-          </ExportWalletDialog>
+          <TransferDialog />
           <ImportWalletDialog>
             <Button variant="outline" onClick={handleImportWallet}>
               <Download className="mr-2 h-4 w-4" />
               Import
             </Button>
           </ImportWalletDialog>
+
+          <ExportWalletDialog>
+            <Button variant="outline" onClick={handleExportWallet}>
+              <Upload className="mr-2 h-4 w-4" /> Export
+            </Button>
+          </ExportWalletDialog>
         </div>
       </CardHeader>
       <CardContent className="space-y-1">
@@ -104,6 +108,35 @@ export default function WalletCard() {
           ETH
         </div>
       </CardContent>
+      <CardFooter className="sm:hidden">
+        <div className="mx-auto flex w-full flex-col items-center gap-2">
+          <Button className="w-full">
+            <HandCoins className="mr-2 h-4 w-4" />
+            Fund wallet
+          </Button>
+
+          <ImportWalletDialog>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleImportWallet}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          </ImportWalletDialog>
+          <ExportWalletDialog>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={handleExportWallet}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Export
+            </Button>
+          </ExportWalletDialog>
+        </div>
+      </CardFooter>
     </Card>
   )
 }

@@ -49,10 +49,13 @@ export default function Assets() {
                   truncateAddress(selectedAccount?.address)}
               </TableCell>
               <TableCell>
-                {selectedAccount?.balance &&
-                  parseFloat(
-                    Number(formatEther(selectedAccount?.balance)).toFixed(8)
-                  ).toString()}
+                {selectedAccount?.balance
+                  ? parseFloat(
+                      Number(
+                        formatEther(selectedAccount?.balance ?? BigInt(0))
+                      ).toFixed(8)
+                    ).toString()
+                  : "0"}
               </TableCell>
               <TableCell>
                 $

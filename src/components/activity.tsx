@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
-import { ArrowDownIcon, ArrowUpIcon } from "lucide-react"
+import { ArrowDownIcon, ArrowUpIcon, LoaderIcon } from "lucide-react"
 import { formatEther } from "viem"
 
 import type { Transaction } from "@/types/web3"
@@ -82,9 +82,11 @@ export default function Activity() {
                 transactions.map((transaction) => (
                   <TableRow key={transaction.hash}>
                     <TableCell>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 capitalize">
                         {transaction.status === "received" ? (
                           <ArrowDownIcon className="h-4 w-4 text-green-500" />
+                        ) : transaction.status === "pending" ? (
+                          <LoaderIcon className="h-4 w-4 animate-spin text-yellow-500" />
                         ) : (
                           <ArrowUpIcon className="h-4 w-4 text-red-500" />
                         )}
@@ -92,7 +94,14 @@ export default function Activity() {
                       </div>
                     </TableCell>
                     <TableCell className="p-1 text-xs md:p-4 md:text-sm">
-                      {new Date(transaction.timestamp).toLocaleString()}
+                      {new Date(transaction.timestamp).toLocaleString("en-US", {
+                        month: "long",
+                        day: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
                     </TableCell>
                     <TableCell className="font-mono text-xs">
                       {transaction.from.slice(0, 6)}...
@@ -103,13 +112,13 @@ export default function Activity() {
                       {transaction?.to?.slice(-4)}
                     </TableCell>
                     <TableCell>
-                      <div>
+                      <div className="font-medium">
                         {transaction.value ? formatEther(transaction.value) : 0}{" "}
                         <span className="text-xs text-muted-foreground">
                           ETH
                         </span>
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-sm text-muted-foreground">
                         $
                         {transaction.value
                           ? (

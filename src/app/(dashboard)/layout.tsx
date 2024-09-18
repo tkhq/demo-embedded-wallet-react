@@ -1,4 +1,3 @@
-import { TransactionsProvider } from "@/providers/transactions-provider"
 import { WalletsProvider } from "@/providers/wallet-provider"
 
 import { Toaster } from "@/components/ui/sonner"
@@ -12,9 +11,7 @@ export default function DashboardLayout({
   return (
     <main className=" h-screen bg-muted/40 dark:bg-neutral-950/80">
       <WalletsProvider>
-        <TransactionsProvider>
-          <NavMenu />
-        </TransactionsProvider>
+        <NavMenu />
 
         <div className="">{children}</div>
       </WalletsProvider>

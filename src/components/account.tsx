@@ -7,11 +7,11 @@ import { useWallets } from "@/providers/wallet-provider"
 import {
   ChevronDownIcon,
   ChevronUpIcon,
-  Download,
   LogOutIcon,
   PlusCircleIcon,
   SettingsIcon,
 } from "lucide-react"
+import Jazzicon, { jsNumberForAddress } from "react-jazzicon"
 
 import { truncateAddress } from "@/lib/utils"
 import { useUser } from "@/hooks/use-user"
@@ -28,6 +28,26 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { Skeleton } from "./ui/skeleton"
+
+function AccountAvatar({ address }: { address: string | undefined }) {
+  return (
+    <Avatar className="h-1/2 w-auto">
+      {address ? (
+        <Jazzicon
+          svgStyles={{
+            filter: "blur(4px)",
+          }}
+          diameter={32}
+          seed={jsNumberForAddress(
+            address ?? "0x1111111111111111111111111111111111111111"
+          )}
+        />
+      ) : (
+        <AvatarFallback className="bg-transparent text-base font-semibold"></AvatarFallback>
+      )}
+    </Avatar>
+  )
+}
 
 export default function Account() {
   const router = useRouter()
@@ -82,9 +102,7 @@ export default function Account() {
           className="h-full w-min justify-between gap-3 bg-none text-foreground"
         >
           <div className="flex items-center gap-3">
-            <Avatar className="h-1/2 w-auto bg-muted  p-1.5">
-              <AvatarFallback className="bg-transparent text-base font-semibold"></AvatarFallback>
-            </Avatar>
+            <AccountAvatar address={selectedAccount?.address} />
             {selectedWallet?.walletName && selectedAccount?.address ? (
               <div className="text-left">
                 <div className="text-sm font-semibold ">
@@ -110,9 +128,12 @@ export default function Account() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-min bg-background text-foreground">
+      <DropdownMenuContent
+        align="end"
+        className=" w-80 bg-background text-foreground"
+      >
         <DropdownMenuLabel className="dark flex w-full items-center gap-2">
-          <Avatar className="h-12 w-12 bg-muted  p-1"></Avatar>
+          <AccountAvatar address={selectedAccount?.address} />
           <div className="flex flex-col">
             <span className=" font-semibold">{user?.username}</span>
             <span className="text-xs text-muted-foreground">
@@ -130,6 +151,7 @@ export default function Account() {
             key={wallet.walletId}
             checked={selectedWallet?.walletId === wallet.walletId}
             onCheckedChange={() => selectWallet(wallet)}
+            onKeyDown={(e) => e.stopPropagation()} // Prevent dropdown menu from handling key events
             className="flex items-center py-2"
           >
             {wallet.walletName}
