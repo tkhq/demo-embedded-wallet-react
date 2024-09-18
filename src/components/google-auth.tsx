@@ -12,6 +12,8 @@ import { sha256 } from "viem"
 
 import { env } from "@/env.mjs"
 
+import { Skeleton } from "./ui/skeleton"
+
 // @todo: these will be used once we can create a custom google login button
 const GoogleAuth = ({ loading }: { loading: boolean }) => {
   const { authIframeClient } = useTurnkey()
@@ -38,17 +40,18 @@ const GoogleAuth = ({ loading }: { loading: boolean }) => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      {nonce && (
+      {nonce ? (
         <GoogleLogin
           nonce={nonce}
           containerProps={{
             className: "w-full bg-black flex justify-center rounded-md",
           }}
           theme="filled_black"
-          width="100%"
           onSuccess={onSuccess}
           useOneTap={false}
         />
+      ) : (
+        <Skeleton className="h-10 w-full" />
       )}
     </GoogleOAuthProvider>
   )

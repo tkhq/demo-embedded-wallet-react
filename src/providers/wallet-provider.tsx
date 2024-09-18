@@ -123,23 +123,26 @@ async function getWalletsWithAccounts(
         walletId: wallet.walletId,
       })
 
-      const accountsWithBalance = await Promise.all(
-        accounts.map(async ({ address, ...account }) => {
+      const accountsWithBalance = await accounts.reduce<Promise<Account[]>>(
+        async (accPromise, { address, ...account }) => {
+          const acc = await accPromise
           // Ensure the account's organizationId matches the provided organizationId
           if (account.organizationId === organizationId) {
-            return {
+            acc.push({
               ...account,
               address: getAddress(address),
               // Balance is initialized to undefined so that it can be fetched lazily on account selection
               balance: undefined,
-            }
+            })
           }
-          return null
-        })
+          return acc
+        },
+        Promise.resolve([])
       )
+
       // Filter out any null accounts
       const validAccounts = accountsWithBalance.filter(
-        (account) => account !== null
+        (account) => account !== undefined
       )
 
       return { ...wallet, accounts: validAccounts }
@@ -177,6 +180,7 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
           )
           dispatch({ type: "SET_WALLETS", payload: wallets })
           if (wallets.length > 0) {
+            let selectedWallet: Wallet = wallets[0]
             // If the user has a preferred wallet, select it
             if (preferredWallet.userId && preferredWallet.walletId) {
               const wallet = wallets.find(
@@ -185,15 +189,13 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
                   user?.userId === preferredWallet.userId
               )
 
+              // Preferred wallet is found select it as the current wallet
+              // otherwise select the first wallet in the list of wallets
               if (wallet) {
-                selectWallet(wallet)
+                selectedWallet = wallet
               }
-              // Preferred wallet not found, select the first wallet
-              selectWallet(wallets[0])
-            } else {
-              // If the user does not have a preferred wallet, select the first wallet
-              selectWallet(wallets[0])
             }
+            selectWallet(selectedWallet)
           }
         } else {
           const currentUser = await turnkey?.getCurrentUser()

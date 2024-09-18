@@ -11,7 +11,7 @@ export default function NavMenu() {
       <div className="flex items-center justify-center gap-4">
         <TransferDialog />
         <Account />
-        <ModeToggle />
+        {/* <ModeToggle /> */}
       </div>
     </div>
   )
