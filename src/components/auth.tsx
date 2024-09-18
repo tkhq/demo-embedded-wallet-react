@@ -71,7 +71,7 @@ export default function Auth() {
               />
             </div>
             <LoadingButton
-              className=""
+              disabled={!email}
               onClick={handlePasskeyLogin}
               loading={state.loading && loadingAction === "passkey"}
             >

@@ -303,11 +303,11 @@ export default function TransferDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <div className=" flex items-center justify-center gap-2">
-        <Button onClick={() => handleSelect("send")} variant="outline">
+        <Button onClick={() => handleSelect("send")} variant="secondary">
           <ArrowUp className="mr-2 h-4 w-4" />
           Send
         </Button>
-        <Button onClick={() => handleSelect("receive")} variant="outline">
+        <Button onClick={() => handleSelect("receive")} variant="secondary">
           <ArrowDown className="mr-2 h-4 w-4" />
           Receive
         </Button>

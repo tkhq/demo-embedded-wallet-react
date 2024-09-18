@@ -94,6 +94,7 @@ export default function ImportWalletDialog({
   const initImportWallet = async () => {
     const currentUser = await turnkey?.getCurrentUser()
     const activeClient = await getActiveClient()
+
     const initImportResponse = await activeClient?.initImportWallet({
       userId: `${currentUser?.userId}`,
     })
@@ -212,6 +213,8 @@ export default function ImportWalletDialog({
       setError("Private key already exists")
     } else if (error?.message?.includes("already imported this wallet seed")) {
       setError("Wallet seed already imported")
+    } else if (error?.message?.includes("invalid mnemonic")) {
+      setError("Invalid seed phrase")
     } else {
       console.error("Import failed:", error, { ...error })
     }
@@ -326,7 +329,7 @@ export default function ImportWalletDialog({
               {error}
             </div>
             <Button
-              disabled={loading || (!importName && injectResponse) || !!error}
+              disabled={loading || (!importName && injectResponse)}
               onClick={onSubmit}
               type="submit"
               className="w-full"

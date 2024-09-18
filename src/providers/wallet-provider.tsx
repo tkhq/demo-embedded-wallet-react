@@ -67,17 +67,13 @@ function walletsReducer(state: WalletsState, action: Action): WalletsState {
       return { ...state, wallets: [...state.wallets, action.payload] }
     case "ADD_ACCOUNT":
       if (state.selectedWallet) {
-        console.log(
-          "state.selectedWallet",
-          state.selectedWallet,
-          action.payload.address
-        )
         const updatedWallets = state.wallets.map((wallet) => {
           if (wallet.walletId === state.selectedWallet?.walletId) {
             // Check if the account already exists in the wallet
             const accountExists = wallet.accounts.some(
               (account) => account.address === action.payload.address
             )
+
             // If the account does not exist, add it to the wallet's accounts
             if (!accountExists) {
               return {
@@ -88,21 +84,16 @@ function walletsReducer(state: WalletsState, action: Action): WalletsState {
           }
           return wallet
         })
+
         // Find the updated selected wallet
         const selectedWallet = updatedWallets.find(
           (wallet) => wallet.walletId === state.selectedWallet?.walletId
         )
-        console.log("updatedWallets", updatedWallets)
-        console.log("action.payload", action.payload)
+
         return {
           ...state,
           wallets: updatedWallets,
-          selectedWallet: selectedWallet
-            ? {
-                ...selectedWallet,
-                accounts: [...selectedWallet.accounts, action.payload],
-              }
-            : state.selectedWallet,
+          selectedWallet: selectedWallet || state.selectedWallet,
         }
       }
       return state
@@ -235,16 +226,15 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
     try {
       const activeClient = await getActiveClient()
       if (state.selectedWallet && activeClient) {
-        console.log("activeClient", activeClient)
         const newAccount = defaultEthereumAccountAtIndex(
-          state.selectedWallet.accounts.length
+          state.selectedWallet.accounts.length + 1
         )
 
         const response = await activeClient.createWalletAccounts({
           walletId: state.selectedWallet.walletId,
           accounts: [newAccount],
         })
-        console.log("response", response)
+
         if (response && user?.organization.organizationId) {
           // We create a new account object here to skip fetching the full account details from the server
           const account: Account = {
@@ -262,7 +252,7 @@ export function WalletsProvider({ children }: { children: ReactNode }) {
             address: getAddress(response.addresses[0]),
             balance: undefined,
           }
-          console.log("new account", account)
+
           dispatch({ type: "ADD_ACCOUNT", payload: account })
         }
       }
