@@ -10,6 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
   Copy,
+  CopyIcon,
 } from "lucide-react"
 import QRCode from "react-qr-code"
 import { formatEther, getAddress, parseEther, TransactionRequest } from "viem"
@@ -29,6 +30,7 @@ import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import SendTransaction from "./send-transaction"
+import { Label } from "./ui/label"
 import { ValueInput } from "./value-input"
 
 type TransferAction = "send" | "receive"
@@ -192,24 +194,26 @@ export default function TransferDialog() {
     }, [ethAmount])
 
     return (
-      <>
-        <div className="relative mb-2 flex items-baseline text-7xl font-light">
-          <ValueInput
-            value={ethAmount}
-            onValueChange={setEthAmount}
-            className="text-7xl"
-            label="ETH"
-          />
+      <div className="flex flex-col gap-6">
+        <div>
+          <div className="relative flex items-baseline text-7xl font-light">
+            <ValueInput
+              value={ethAmount}
+              onValueChange={setEthAmount}
+              className="text-7xl"
+              label="ETH"
+            />
+          </div>
+
+          <div className="text-lg  text-muted-foreground">~${amountUSD}</div>
         </div>
 
-        <div className="mb-6 text-lg  text-muted-foreground">${amountUSD}</div>
-
-        <div className="mb-4 flex items-center rounded-lg  p-4">
+        <div className="flex items-center">
           <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#627eea]">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="28"
+              height="28"
               viewBox="0 0 32 32"
             >
               <g fill="none" fillRule="evenodd">
@@ -238,7 +242,7 @@ export default function TransferDialog() {
           <div className="text-right">
             <div className="font-semibold">
               {selectedAccount?.balance
-                ? formatEther(selectedAccount?.balance)
+                ? Number(formatEther(selectedAccount?.balance)).toFixed(4)
                 : "0"}{" "}
               <span className="text-sm text-muted-foreground">ETH</span>
             </div>
@@ -248,7 +252,7 @@ export default function TransferDialog() {
           {/* <ChevronRight className="ml-2 " size={20} /> */}
         </div>
 
-        <div className="mb-6 flex items-center rounded-lg bg-muted  p-4">
+        <div className="flex items-center rounded-lg bg-muted  p-4">
           <Input
             placeholder="Enter recipient address"
             value={recipientAddress}
@@ -265,39 +269,39 @@ export default function TransferDialog() {
           Preview Send
           <ChevronRight className="ml-2" size={20} />
         </Button>
-      </>
+      </div>
     )
   }
 
   const ReceiveTab = () => (
-    <>
-      <div className="mb-4 flex items-center justify-between">
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold">Ethereum</h2>
-          <p className="text-[#8e8e93]">ETH wallet</p>
+          <h2 className="text-2xl font-semibold">Receive ETH</h2>
+          <p className="text-[#8e8e93]">on Ethereum Network</p>
         </div>
         <Button variant="ghost" className="text-white">
           <ChevronDown className="mr-2" size={20} />
         </Button>
       </div>
 
-      <div className="mx-auto mb-4 w-8/12 rounded-lg p-4 dark:bg-white">
+      <div className="mx-auto w-8/12 rounded-lg p-4 dark:bg-white">
         <QRCode
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
           value={selectedAccount?.address || ""}
         />
       </div>
 
-      <div className="mb-4">
-        <h3 className="mb-2">ETH address (Ethereum)</h3>
-        <div className="flex items-center justify-between rounded-lg  p-4">
-          <div className="break-all text-sm">{selectedAccount?.address}</div>
-          <Button variant="ghost" className="text-[#0a84ff]">
-            <Copy size={20} />
+      <div>
+        <Label className="text-sm font-medium">Your address</Label>
+        <div className="flex items-center justify-between rounded-lg">
+          <div className="text-sm">{selectedAccount?.address}</div>
+          <Button variant="ghost" size="icon">
+            <CopyIcon className="h-3 w-3" />
           </Button>
         </div>
       </div>
-    </>
+    </div>
   )
 
   return (
@@ -312,7 +316,7 @@ export default function TransferDialog() {
           Receive
         </Button>
       </div>
-      <DialogContent className="p-4 sm:max-w-[425px]">
+      <DialogContent className="p-4 sm:max-w-[480px]">
         <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
         <DialogDescription className="sr-only">
           Send or receive ETH to your Turnkey wallet

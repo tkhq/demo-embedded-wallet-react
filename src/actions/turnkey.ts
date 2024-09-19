@@ -5,6 +5,7 @@ import {
   DEFAULT_ETHEREUM_ACCOUNTS,
   TurnkeyServerClient,
 } from "@turnkey/sdk-server"
+import { decode, JwtPayload } from "jsonwebtoken"
 import { getAddress } from "viem"
 
 import { env } from "@/env.mjs"
@@ -24,6 +25,16 @@ const client = new TurnkeyServerClient({
   organizationId: turnkeyConfig.organizationId,
   stamper,
 })
+
+function decodeJwt(credential: string): JwtPayload | null {
+  const decoded = decode(credential)
+
+  if (decoded && typeof decoded === "object" && "email" in decoded) {
+    return decoded as JwtPayload
+  }
+
+  return null
+}
 
 export const createUserSubOrg = async ({
   email,
@@ -58,6 +69,15 @@ export const createUserSubOrg = async ({
       ]
     : []
 
+  let userEmail = email
+  // If the user is logging in with a Google Auth credential, use the email from the decoded OIDC token (credential
+  // Otherwise, use the email from the email parameter
+  if (oauth) {
+    const decoded = decodeJwt(oauth.credential)
+    if (decoded?.email) {
+      userEmail = decoded.email
+    }
+  }
   const subOrganizationName = `Sub Org - ${email}`
   const userName = email ? email.split("@")?.[0] || email : ""
 
@@ -67,7 +87,7 @@ export const createUserSubOrg = async ({
     rootUsers: [
       {
         userName,
-        userEmail: email,
+        userEmail,
         oauthProviders,
         authenticators,
         apiKeys: [],
