@@ -71,6 +71,7 @@ export default function ImportWalletDialog({
 
   // Close the dialog and reset the state
   const resetState = () => {
+    setSelectedImportType("seed-phrase")
     setImportComplete(false)
     setInjectResponse(false)
     setImportName("")
@@ -221,7 +222,7 @@ export default function ImportWalletDialog({
   }
 
   useEffect(() => {
-    if (!isDialogOpen && injectResponse) {
+    if (!isDialogOpen) {
       resetState()
     }
   }, [isDialogOpen])
@@ -239,46 +240,65 @@ export default function ImportWalletDialog({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Import Wallet</DialogTitle>
-          <DialogDescription>Select import type</DialogDescription>
+          <DialogTitle>
+            {injectResponse
+              ? `Import ${
+                  selectedImportType === "seed-phrase"
+                    ? "Wallet"
+                    : "Private Key"
+                }`
+              : "Import Wallet"}
+          </DialogTitle>
+          <DialogDescription>
+            {injectResponse
+              ? `Enter your ${
+                  selectedImportType === "seed-phrase"
+                    ? "seed phrase"
+                    : "private key"
+                }`
+              : "Select import type"}
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <RadioGroup
-            disabled={injectResponse}
-            value={selectedImportType}
-            onValueChange={setSelectedImportType}
-            className="flex gap-4"
-          >
-            <div className="flex-1">
-              <RadioGroupItem
-                value="seed-phrase"
-                id="seed-phrase"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="seed-phrase"
-                className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <RectangleEllipsis className="mb-2 h-6 w-6" />
-                Seed Phrase
-              </Label>
-            </div>
-            <div className="flex-1">
-              <RadioGroupItem
-                value="private-key"
-                id="private-key"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="private-key"
-                className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <Key className="mb-2 h-6 w-6" />
-                Private Key
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
+
+        {!injectResponse && (
+          <div className="py-4">
+            <RadioGroup
+              disabled={injectResponse}
+              value={selectedImportType}
+              onValueChange={setSelectedImportType}
+              className="flex gap-4"
+            >
+              <div className="flex-1">
+                <RadioGroupItem
+                  value="seed-phrase"
+                  id="seed-phrase"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor="seed-phrase"
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <RectangleEllipsis className="mb-2 h-6 w-6" />
+                  Seed Phrase
+                </Label>
+              </div>
+              <div className="flex-1">
+                <RadioGroupItem
+                  value="private-key"
+                  id="private-key"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor="private-key"
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <Key className="mb-2 h-6 w-6" />
+                  Private Key
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
 
         <div
           className={cn({

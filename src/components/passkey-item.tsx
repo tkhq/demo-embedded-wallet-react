@@ -33,12 +33,16 @@ export function PasskeyItem({
         </div>
         <div>
           <h3 className="text-sm font-medium text-card-foreground">{name}</h3>
-          <p className="text-xs text-muted-foreground">Name</p>
         </div>
       </div>
       <div className="flex items-center space-x-4">
         <span className="text-sm text-muted-foreground">
-          Created at {createdAt.toLocaleDateString()}
+          Created at{" "}
+          {createdAt.toLocaleDateString("en-US", {
+            month: "short",
+            day: "2-digit",
+            year: "numeric",
+          })}
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -47,9 +51,6 @@ export function PasskeyItem({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="cursor-pointer" onClick={onEdit}>
-              Edit
-            </DropdownMenuItem>
             <DropdownMenuItem
               className="cursor-pointer text-destructive focus:text-destructive"
               onClick={onRemove}

@@ -132,8 +132,11 @@ export default function Activity() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell className="text-center" colSpan={5}>
-                    No transactions found
+                  <TableCell
+                    className="text-center text-muted-foreground"
+                    colSpan={5}
+                  >
+                    No activity. Send or receive ETH to see transactions here.
                   </TableCell>
                 </TableRow>
               )}

@@ -28,7 +28,7 @@ export default function ExportWalletDialog({
 }) {
   const { state } = useWallets()
   const { selectedWallet, selectedAccount } = state
-  const { turnkey, getActiveClient, authIframeClient } = useTurnkey()
+  const { turnkey, getActiveClient } = useTurnkey()
   const { export: exportConfig } = turnkeyConfig.iFrame
   const [iframeClient, setIframeClient] = useState<TurnkeyIframeClient | null>(
     null
@@ -147,53 +147,83 @@ export default function ExportWalletDialog({
     ) {
       setError("Unauthorized: Authenticator not found, please try again.")
     }
-    console.log(error, { ...error })
+    console.error(error)
   }
+
+  const resetState = () => {
+    setInjectResponse(false)
+    setSelectedExportType("seed-phrase")
+    setError(null)
+  }
+
+  useEffect(() => {
+    if (!isDialogOpen) {
+      resetState()
+    }
+  }, [isDialogOpen])
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Export Wallet</DialogTitle>
-          <DialogDescription>Select export type</DialogDescription>
+          <DialogTitle>
+            {injectResponse
+              ? `Your ${
+                  selectedExportType === "seed-phrase"
+                    ? "seed phrase"
+                    : "private key"
+                }`
+              : "Export Wallet"}
+          </DialogTitle>
+          <DialogDescription>
+            {injectResponse
+              ? `Copy the ${
+                  selectedExportType === "seed-phrase"
+                    ? "seed phrase"
+                    : "private key"
+                } and import it into your wallet.`
+              : "Select export type"}
+          </DialogDescription>
         </DialogHeader>
-        <div className="py-4">
-          <RadioGroup
-            value={selectedExportType}
-            onValueChange={setSelectedExportType}
-            className="flex gap-4"
-          >
-            <div className="flex-1">
-              <RadioGroupItem
-                value="seed-phrase"
-                id="seed-phrase"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="seed-phrase"
-                className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <RectangleEllipsis className="mb-2 h-6 w-6" />
-                Seed Phrase
-              </Label>
-            </div>
-            <div className="flex-1">
-              <RadioGroupItem
-                value="private-key"
-                id="private-key"
-                className="peer sr-only"
-              />
-              <Label
-                htmlFor="private-key"
-                className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-              >
-                <Key className="mb-2 h-6 w-6" />
-                Private Key
-              </Label>
-            </div>
-          </RadioGroup>
-        </div>
+        {!injectResponse && (
+          <div className="py-4">
+            <RadioGroup
+              value={selectedExportType}
+              onValueChange={setSelectedExportType}
+              className="flex gap-4"
+            >
+              <div className="flex-1">
+                <RadioGroupItem
+                  value="seed-phrase"
+                  id="seed-phrase"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor="seed-phrase"
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <RectangleEllipsis className="mb-2 h-6 w-6" />
+                  Seed Phrase
+                </Label>
+              </div>
+              <div className="flex-1">
+                <RadioGroupItem
+                  value="private-key"
+                  id="private-key"
+                  className="peer sr-only"
+                />
+                <Label
+                  htmlFor="private-key"
+                  className="flex cursor-pointer flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <Key className="mb-2 h-6 w-6" />
+                  Private Key
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
         <div
           className={cn("w-full rounded-md bg-muted p-4", {
             hidden: !injectResponse,

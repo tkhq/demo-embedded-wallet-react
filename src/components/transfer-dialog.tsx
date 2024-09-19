@@ -9,7 +9,6 @@ import {
   ArrowUp,
   ChevronDown,
   ChevronRight,
-  Copy,
   CopyIcon,
 } from "lucide-react"
 import QRCode from "react-qr-code"

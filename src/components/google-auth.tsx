@@ -44,9 +44,8 @@ const GoogleAuth = ({ loading }: { loading: boolean }) => {
         <GoogleLogin
           nonce={nonce}
           containerProps={{
-            className: "w-full bg-black flex justify-center rounded-md",
+            className: "w-full bg-white flex justify-center rounded-md",
           }}
-          theme="filled_black"
           onSuccess={onSuccess}
           useOneTap={false}
         />
