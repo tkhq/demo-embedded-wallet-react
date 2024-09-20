@@ -1,16 +1,58 @@
-# Demo Embedded Wallet
+# Next Entree
 
-This repo contains a wallet application **for demonstration purposes only** showcasing the latest and greatest Turnkey features. See our [SDK repo](https://github.com/tkhq/sdk) for packages referenced in this example.
+Next.js 14+ starter template with app router, shadcn/ui, typesafe env, icons and configs setup.
 
-The current feature set includes:
-- Passkey sessions
-- Email Auth
-- Oauth
-- Wallet and private key import + export
-- Signing transactions
+## Usage
 
-# Legal Disclaimer
+1. Setup a project using the template
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL TURNKEY BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```bash
+pnpm create next-app -e https://github.com/redpangilinan/next-entree
+```
 
-We are providing this demo embedded wallet as a convenience to demonstrate certain features and functionality (the "Demo Application"). By using this Demo Application, you acknowledge and agree that Demo Applications are provided for testing and demonstrative purposes only, have limited functionality, are likely to contain errors and/or defects and are not suitable for production use. This Demo Application is provided "AS IS" and "AS AVAILABLE." You should not rely on the performance or correct functioning of this Demo Application, nor should you rely on it for production or mainnet use. Under no circumstances may you send any funds or digital assets to any wallet address created by this Demo Application and any such funds or digital assets will be unrecoverable. You understand and agree that we may change, withdraw, terminate your access to, testing of and/or use of, or discontinue this Demo Application, or any respective portions thereof, at any time and in our sole discretion, with or without notice to you.
+```bash
+npx create-next-app -e https://github.com/redpangilinan/next-entree
+```
+
+```bash
+yarn create next-app -e https://github.com/redpangilinan/next-entree
+```
+
+```bash
+bunx create-next-app -e https://github.com/redpangilinan/next-entree
+```
+
+2. Copy `.env.example` to `.env.local`
+
+```bash
+cp .env.example .env.local
+```
+
+## Features
+
+This template uses [shadcn](https://github.com/shadcn)'s Next.js app structure from [shadcn/ui](https://ui.shadcn.com/).
+
+- Next.js 14+ `/app` router
+- TypeScript
+- Tailwind CSS
+- shadcn/ui (Radix UI + Tailwind)
+- Prettier (w/ auto sort imports and tailwind classes)
+- SEO optimized
+- Typesafe env, icons, and config
+- Ready to use - jump right into development
+
+## Scripts
+
+If you are using a different package manager, be sure to update the package.json format scripts.
+
+1. Check project formatting
+
+```bash
+pnpm format:check
+```
+
+2. Format the project
+
+```bash
+pnpm format
+```
