@@ -48,7 +48,7 @@ export default function WalletCard() {
   useEffect(() => {
     if (ethPrice && selectedAccount?.balance !== undefined) {
       const balanceInEther = formatEther(selectedAccount?.balance)
-      setUsdAmount(ethPrice * Number(balanceInEther))
+      setUsdAmount(Number(balanceInEther) * ethPrice)
     }
   }, [ethPrice, selectedAccount?.balance])
 
@@ -64,7 +64,7 @@ export default function WalletCard() {
         <div className="hidden items-center gap-2 sm:flex">
           <Button onClick={handleFundWallet} className="h-min cursor-pointer ">
             <HandCoins className="mr-2 h-4 w-4" />
-            Fund wallet
+            Add funds
           </Button>
           <TransferDialog />
           <ImportWalletDialog>
@@ -112,29 +112,31 @@ export default function WalletCard() {
         <div className="mx-auto flex w-full flex-col items-center gap-2">
           <Button className="w-full">
             <HandCoins className="mr-2 h-4 w-4" />
-            Fund wallet
+            Add funds
           </Button>
-
-          <ImportWalletDialog>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleImportWallet}
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Import
-            </Button>
-          </ImportWalletDialog>
-          <ExportWalletDialog>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={handleExportWallet}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </ExportWalletDialog>
+          <TransferDialog />
+          <div className="flex w-full items-center gap-2">
+            <ImportWalletDialog>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleImportWallet}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Import
+              </Button>
+            </ImportWalletDialog>
+            <ExportWalletDialog>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleExportWallet}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Export
+              </Button>
+            </ExportWalletDialog>
+          </div>
         </div>
       </CardFooter>
     </Card>

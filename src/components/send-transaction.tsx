@@ -34,21 +34,22 @@ export default function SendTransaction({
   const totalUSD = parseFloat(amountUSD) + totalGasFeesUSD
 
   return (
-    <div className="">
-      <div className="mb-6">
+    <div className="flex flex-col gap-4">
+      <div className="flex-col">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-6 w-6" />
         </Button>
+
+        <div className="w-full">
+          <h1 className="text-center text-2xl font-bold">
+            Send ${amountUSD} in ETH
+          </h1>
+          <p className="text-center text-gray-400">
+            {transaction.value ? formatEther(transaction.value) : "0"} ETH
+          </p>
+        </div>
       </div>
-
-      <h1 className="mb-1 text-center text-2xl font-bold">
-        Send ${amountUSD} in ETH
-      </h1>
-      <p className="mb-6 text-center text-gray-400">
-        {transaction.value ? formatEther(transaction.value) : "0"} ETH
-      </p>
-
-      <div className="mb-6 space-y-4">
+      <div className="space-y-4">
         <div className="flex justify-between">
           <span className="font-medium text-muted-foreground">Send to</span>
           <span className="text-right">
@@ -61,7 +62,7 @@ export default function SendTransaction({
         </div>
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <span className="font-medium text-muted-foreground">Total</span>
           <span className="text-sm text-muted-foreground/70">

@@ -20,7 +20,7 @@ export default function LandingLayout({ children }: LandingLayoutProps) {
         />
         <Features />
       </div>
-      {children}
+      <div className="flex items-center justify-center px-6">{children}</div>
     </main>
   )
 }

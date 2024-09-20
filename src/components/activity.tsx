@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { useTransactions } from "@/providers/transactions-provider"
 import { useWallets } from "@/providers/wallet-provider"
 import { ArrowDownIcon, ArrowUpIcon, LoaderIcon } from "lucide-react"
@@ -44,7 +45,7 @@ export default function Activity() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activity</CardTitle>
+        <CardTitle className="text-lg sm:text-2xl">Activity</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="flex max-h-[450px] w-full flex-col overflow-y-auto rounded-md">
@@ -52,9 +53,9 @@ export default function Activity() {
             <TableHeader className="sticky top-0 bg-card">
               <TableRow>
                 <TableHead>Status</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead className="hidden sm:table-cell">Date</TableHead>
                 <TableHead>From</TableHead>
-                <TableHead>To</TableHead>
+                <TableHead className="hidden sm:table-cell">To</TableHead>
                 <TableHead>Amount</TableHead>
               </TableRow>
             </TableHeader>
@@ -93,7 +94,7 @@ export default function Activity() {
                         {transaction.status}
                       </div>
                     </TableCell>
-                    <TableCell className="p-1 text-xs md:p-4 md:text-sm">
+                    <TableCell className="hidden p-1 text-xs sm:table-cell md:p-4 md:text-sm">
                       {new Date(transaction.timestamp).toLocaleString("en-US", {
                         month: "long",
                         day: "2-digit",
@@ -103,13 +104,27 @@ export default function Activity() {
                         hour12: true,
                       })}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {transaction.from.slice(0, 6)}...
-                      {transaction.from.slice(-4)}
+                    <TableCell className="hidden font-mono text-xs sm:table-cell">
+                      <Link
+                        className="underline underline-offset-4"
+                        href={`https://sepolia.etherscan.io/address/${transaction.from}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {transaction.from.slice(0, 6)}...
+                        {transaction.from.slice(-4)}
+                      </Link>
                     </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {transaction?.to?.slice(0, 6)}...
-                      {transaction?.to?.slice(-4)}
+                      <Link
+                        className="underline underline-offset-4"
+                        href={`https://sepolia.etherscan.io/address/${transaction.to}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {transaction?.to?.slice(0, 6)}...
+                        {transaction?.to?.slice(-4)}
+                      </Link>
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">

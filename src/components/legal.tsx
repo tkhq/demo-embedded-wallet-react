@@ -4,11 +4,11 @@ import { Button } from "./ui/button"
 
 export default function Legal() {
   return (
-    <div className=" py-4 text-xs text-muted-foreground lg:text-sm">
+    <div className=" py-4 text-center text-xs text-muted-foreground">
       By continuing, you agree to{" "}
       <Button
         variant="link"
-        className="p-0 text-xs text-secondary-foreground lg:text-sm"
+        className="h-min p-0 text-xs text-secondary-foreground"
       >
         <Link target="_blank" href="https://www.turnkey.com/legal/terms">
           Terms & Conditions
@@ -17,7 +17,7 @@ export default function Legal() {
       and{" "}
       <Button
         variant="link"
-        className="p-0 text-xs text-secondary-foreground lg:text-sm"
+        className="h-min p-0 text-xs text-secondary-foreground"
       >
         <Link target="_blank" href="https://www.turnkey.com/legal/privacy">
           Privacy Policy

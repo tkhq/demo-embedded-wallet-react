@@ -6,7 +6,7 @@ import WalletCard from "@/components/wallet-card"
 
 export default function Dashboard() {
   return (
-    <main className="container mx-auto space-y-4 p-8 lg:space-y-8 xl:px-12 2xl:px-24">
+    <main className="container mx-auto space-y-4 p-2 sm:p-8 lg:space-y-8 xl:px-12 2xl:px-24">
       <TransactionsProvider>
         <WalletCard />
         <div className="flex flex-col gap-4">

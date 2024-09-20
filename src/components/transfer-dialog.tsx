@@ -12,9 +12,11 @@ import {
   CopyIcon,
 } from "lucide-react"
 import QRCode from "react-qr-code"
+import { useMediaQuery } from "usehooks-ts"
 import { formatEther, getAddress, parseEther, TransactionRequest } from "viem"
 
 import { showTransactionToast } from "@/lib/toast"
+import { truncateAddress } from "@/lib/utils"
 import { getPublicClient, getTurnkeyWalletClient } from "@/lib/web3"
 import { useTokenPrice } from "@/hooks/use-token-price"
 import { Button } from "@/components/ui/button"
@@ -24,11 +26,21 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import SendTransaction from "./send-transaction"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerTitle,
+  DrawerTrigger,
+} from "./ui/drawer"
 import { Label } from "./ui/label"
 import { ValueInput } from "./value-input"
 
@@ -40,6 +52,7 @@ export default function TransferDialog() {
   const { ethPrice } = useTokenPrice()
   const { getActiveClient } = useTurnkey()
   const { addPendingTransaction } = useTransactions()
+  const isDesktop = useMediaQuery("(min-width: 768px)")
 
   // Controls the dialog open/close state
   const [isOpen, setIsOpen] = useState(false)
@@ -284,7 +297,7 @@ export default function TransferDialog() {
         </Button>
       </div>
 
-      <div className="mx-auto w-8/12 rounded-lg p-4 dark:bg-white">
+      <div className="mx-auto w-2/5 rounded-lg dark:bg-white sm:w-8/12">
         <QRCode
           style={{ height: "auto", maxWidth: "100%", width: "100%" }}
           value={selectedAccount?.address || ""}
@@ -294,7 +307,9 @@ export default function TransferDialog() {
       <div>
         <Label className="text-sm font-medium">Your address</Label>
         <div className="flex items-center justify-between rounded-lg">
-          <div className="text-sm">{selectedAccount?.address}</div>
+          <div className="text-sm">
+            {truncateAddress(selectedAccount?.address || "")}
+          </div>
           <Button variant="ghost" size="icon">
             <CopyIcon className="h-3 w-3" />
           </Button>
@@ -303,54 +318,161 @@ export default function TransferDialog() {
     </div>
   )
 
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <div className=" flex items-center justify-center gap-2">
-        <Button onClick={() => handleSelect("send")} variant="secondary">
-          <ArrowUp className="mr-2 h-4 w-4" />
-          Send
-        </Button>
-        <Button onClick={() => handleSelect("receive")} variant="secondary">
-          <ArrowDown className="mr-2 h-4 w-4" />
-          Receive
-        </Button>
-      </div>
-      <DialogContent className="p-4 sm:max-w-[480px]">
-        <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
-        <DialogDescription className="sr-only">
-          Send or receive ETH to your Turnkey wallet
-        </DialogDescription>
-        <Card className="w-full border-0  shadow-none">
-          <CardContent className="p-6">
-            {currentView === "send" && (
-              <Tabs defaultValue={selectedAction} className="w-full">
-                <TabsList className="mb-6 grid w-full grid-cols-2 ">
-                  <TabsTrigger value="send">Send</TabsTrigger>
-                  <TabsTrigger value="receive">Receive</TabsTrigger>
-                </TabsList>
-                <TabsContent value="send">
-                  <SendTab />
-                </TabsContent>
-                <TabsContent value="receive">
-                  <ReceiveTab />
-                </TabsContent>
-              </Tabs>
-            )}
-            {currentView === "sendTransaction" &&
-              transactionRequest &&
-              ethPrice && (
-                <SendTransaction
-                  transaction={transactionRequest}
-                  amountUSD={amountUSD}
-                  ethPrice={ethPrice}
-                  network="Ethereum"
-                  onSend={handleSendTransaction}
-                  onBack={handleBackToSendTab}
-                />
-              )}
-          </CardContent>
-        </Card>
-      </DialogContent>
-    </Dialog>
+  const TransferContent = ({ className }: React.ComponentProps<"div">) => (
+    <Card className="w-full border-0  shadow-none">
+      <CardContent className="p-4">
+        {currentView === "send" && (
+          <Tabs defaultValue={selectedAction} className="w-full">
+            <TabsList className="mb-6 grid w-full grid-cols-2 ">
+              <TabsTrigger value="send">Send</TabsTrigger>
+              <TabsTrigger value="receive">Receive</TabsTrigger>
+            </TabsList>
+            <TabsContent value="send">
+              <SendTab />
+            </TabsContent>
+            <TabsContent value="receive">
+              <ReceiveTab />
+            </TabsContent>
+          </Tabs>
+        )}
+        {currentView === "sendTransaction" &&
+          transactionRequest &&
+          ethPrice && (
+            <SendTransaction
+              transaction={transactionRequest}
+              amountUSD={amountUSD}
+              ethPrice={ethPrice}
+              network="Ethereum"
+              onSend={handleSendTransaction}
+              onBack={handleBackToSendTab}
+            />
+          )}
+      </CardContent>
+    </Card>
   )
+
+  if (isDesktop) {
+    return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex items-center justify-center gap-2">
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => setSelectedAction("send")}
+              variant="secondary"
+            >
+              <ArrowUp className="mr-2 h-4 w-4" />
+              Send
+            </Button>
+          </DialogTrigger>
+          <DialogTrigger asChild>
+            <Button
+              onClick={() => setSelectedAction("receive")}
+              variant="secondary"
+            >
+              <ArrowDown className="mr-2 h-4 w-4" />
+              Receive
+            </Button>
+          </DialogTrigger>
+        </div>
+        <DialogContent className="p-4 sm:max-w-[480px]">
+          <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
+          <DialogDescription className="sr-only">
+            Send or receive ETH to your Turnkey wallet
+          </DialogDescription>
+          <TransferContent />
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  return (
+    <Drawer open={isOpen} onOpenChange={setIsOpen}>
+      <div className="flex w-full items-center justify-center gap-2">
+        <DrawerTrigger asChild>
+          <Button
+            onClick={() => setSelectedAction("send")}
+            variant="secondary"
+            className="w-full"
+          >
+            <ArrowUp className="mr-2 h-4 w-4" />
+            Send
+          </Button>
+        </DrawerTrigger>
+        <DrawerTrigger asChild>
+          <Button
+            onClick={() => setSelectedAction("receive")}
+            variant="secondary"
+            className="w-full"
+          >
+            <ArrowDown className="mr-2 h-4 w-4" />
+            Receive
+          </Button>
+        </DrawerTrigger>
+      </div>
+      <DrawerContent className="px-4">
+        <DrawerTitle className="sr-only">Transfer ETH</DrawerTitle>
+        <DrawerDescription className="sr-only">
+          Send or receive ETH to your Turnkey wallet
+        </DrawerDescription>
+
+        <TransferContent className="px-4" />
+        <DrawerFooter className="m-0 py-0 pb-4">
+          <DrawerClose asChild>
+            <Button variant="secondary">Close</Button>
+          </DrawerClose>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
+  )
+
+  // return (
+  //   <Dialog open={isOpen} onOpenChange={setIsOpen}>
+  //     <div className=" flex items-center justify-center gap-2">
+  //       <Button onClick={() => handleSelect("send")} variant="secondary">
+  //         <ArrowUp className="mr-2 h-4 w-4" />
+  //         Send
+  //       </Button>
+  //       <Button onClick={() => handleSelect("receive")} variant="secondary">
+  //         <ArrowDown className="mr-2 h-4 w-4" />
+  //         Receive
+  //       </Button>
+  //     </div>
+  //     <DialogContent className="p-4 sm:max-w-[480px]">
+  //       <DialogTitle className="sr-only">Transfer Dialog</DialogTitle>
+  //       <DialogDescription className="sr-only">
+  //         Send or receive ETH to your Turnkey wallet
+  //       </DialogDescription>
+  //       <Card className="w-full border-0  shadow-none">
+  //         <CardContent className="p-6">
+  //           {currentView === "send" && (
+  //             <Tabs defaultValue={selectedAction} className="w-full">
+  //               <TabsList className="mb-6 grid w-full grid-cols-2 ">
+  //                 <TabsTrigger value="send">Send</TabsTrigger>
+  //                 <TabsTrigger value="receive">Receive</TabsTrigger>
+  //               </TabsList>
+  //               <TabsContent value="send">
+  //                 <SendTab />
+  //               </TabsContent>
+  //               <TabsContent value="receive">
+  //                 <ReceiveTab />
+  //               </TabsContent>
+  //             </Tabs>
+  //           )}
+  //           {currentView === "sendTransaction" &&
+  //             transactionRequest &&
+  //             ethPrice && (
+  //               <SendTransaction
+  //                 transaction={transactionRequest}
+  //                 amountUSD={amountUSD}
+  //                 ethPrice={ethPrice}
+  //                 network="Ethereum"
+  //                 onSend={handleSendTransaction}
+  //                 onBack={handleBackToSendTab}
+  //               />
+  //             )}
+  //         </CardContent>
+  //       </Card>
+  //     </DialogContent>
+  //   </Dialog>
+  // )
 }

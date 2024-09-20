@@ -80,7 +80,7 @@ export default function Auth() {
 
   return (
     <>
-      <Card className="mx-auto w-[450px]">
+      <Card className="mx-auto w-full max-w-[450px]">
         <CardHeader className="space-y-4">
           <Icons.turnkey className="h-16 w-full stroke-0 py-2 dark:stroke-white" />
           <CardTitle className="text-center text-xl font-medium">
